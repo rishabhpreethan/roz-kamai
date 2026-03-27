@@ -1,0 +1,21 @@
+# Claude local settings (contains tokens — never commit)
+.claude/settings.local.json
+
+# Android build
+*.iml
+.gradle/
+local.properties
+.idea/
+.DS_Store
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.keystore
+!/debug.keystore
+
+# Secrets
+*.env
+.env.local
