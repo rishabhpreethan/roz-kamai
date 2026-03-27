@@ -113,11 +113,14 @@ PR is from `feature/{task-id}-{short-name}` → `main`.
 ```
 Change task Status → "In Review (PR raised)"
 
-**2. Update Notion** via Notion MCP — find task page by Task ID and update:
-- Status → "In Review"
-- PR URL → {GitHub PR URL}
-- Review Completed At → current datetime
-- Notes → brief alignment summary
+**2. Update Notion** via Notion MCP:
+- Database ID: `330e4d6cb20080f8a158d99379507742` (Tasks DB)
+- Query the database to find the page where Task ID matches `{TaskID}`
+- Update that page's properties:
+  - Status → "In Review"
+  - PR URL → {GitHub PR URL}
+  - Review Completed At → current datetime (ISO 8601)
+  - Notes → brief alignment summary
 
 **When sending back for rework:**
 
@@ -129,9 +132,12 @@ Change task Status → "In Review (PR raised)"
 ```
 Change task Status → "Rework Needed"
 
-**2. Update Notion**:
-- Status → "Rework Needed"
-- Notes → what needs to change
+**2. Update Notion** via Notion MCP:
+- Database ID: `330e4d6cb20080f8a158d99379507742` (Tasks DB)
+- Query the database to find the page where Task ID matches `{TaskID}`
+- Update that page's properties:
+  - Status → "Rework Needed"
+  - Notes → what needs to change (specific, actionable)
 
 ## Review Report Format
 

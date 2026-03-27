@@ -79,11 +79,14 @@ When you complete a task, do ALL of the following:
 ```
 Change task Status column: → "Dev Complete"
 
-**2. Update Notion** via Notion MCP — find the task page by Task ID and update:
-- Status → "Dev Complete"
-- Branch → `feature/{task-id}-{short-description}`
-- Completed At → current datetime (ISO format)
-- Notes → brief summary
+**2. Update Notion** via Notion MCP:
+- Database ID: `330e4d6cb20080f8a158d99379507742` (Tasks DB)
+- Query the database to find the page where Task ID matches `{TaskID}`
+- Update that page's properties:
+  - Status → "Dev Complete"
+  - Branch → `feature/{task-id}-{short-description}`
+  - Dev Completed At → current datetime (ISO 8601)
+  - Notes → brief one-line summary
 
 ## Self-Test Before Handoff
 Before handing off to QA:

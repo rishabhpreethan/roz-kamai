@@ -83,11 +83,14 @@ When you complete testing, do ALL of the following:
 ```
 Change task Status column → "QA Passed" or "QA Failed"
 
-**2. Update Notion** via Notion MCP — find task page by Task ID and update:
-- Status → "QA Passed" or "QA Failed"
-- QA Completed At → current datetime
-- Test Coverage → X%
-- Notes → brief summary of what was tested
+**2. Update Notion** via Notion MCP:
+- Database ID: `330e4d6cb20080f8a158d99379507742` (Tasks DB)
+- Query the database to find the page where Task ID matches `{TaskID}`
+- Update that page's properties:
+  - Status → "QA Passed" or "QA Failed"
+  - QA Completed At → current datetime (ISO 8601)
+  - Test Coverage → X%
+  - Notes → brief summary of what was tested
 
 ## Handoff Format
 **To Reviewer (when passing):**
