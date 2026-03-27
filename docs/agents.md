@@ -5,8 +5,13 @@
 VIIS development uses a three-agent system where each agent has a distinct role and clear handoff protocols. No code ships without passing through all three agents.
 
 ```
-Developer → QA → Reviewer → ✅ Shipped (or → 🔁 Back to Developer)
+Developer → QA → Reviewer → PR raised → Rishabh merges → ✅ Done
+                                      ↘ or → 🔁 Back to Developer
 ```
+
+**Key rule**: Agents never merge to `main`. Rishabh reviews and merges all PRs.
+
+See [`docs/branch-strategy.md`](branch-strategy.md) for the full branching and PR workflow.
 
 ---
 
@@ -94,42 +99,45 @@ sequenceDiagram
 
     Note over D,R: ═══ Standard Feature Flow ═══
 
-    D->>S: Update task status → "In Progress"
-    D->>D: Implement feature
-    D->>D: Write unit tests
+    D->>D: git checkout main && git pull
+    D->>D: git checkout -b feature/{task-id}-{short-name}
+    D->>D: Implement feature + unit tests
     D->>D: Self-test
-    D->>S: Update task status → "Dev Complete"
-    D->>Q: Handoff: feature + unit tests + notes
+    D->>D: git push -u origin feature/{task-id}-{short-name}
+    D->>S: Update status.md → "Dev Complete"
+    D->>N: Update Notion task → "Dev Complete"
+    D->>Q: Handoff: branch name + notes
 
-    Q->>S: Update task status → "In QA"
-    Q->>Q: Run test suite
-    Q->>Q: Test edge cases (from user flow doc)
-    Q->>Q: Test on low-end device
+    Q->>Q: git checkout feature/{task-id}-{short-name}
+    Q->>Q: Run test suite + edge cases
+    Q->>Q: Test on low-end device profile
     Q->>Q: Verify events produced correctly
 
     alt All Tests Pass
-        Q->>S: Update task status → "QA Passed"
-        Q->>R: Handoff: feature + test results + coverage
+        Q->>S: Update status.md → "QA Passed"
+        Q->>N: Update Notion → "QA Passed"
+        Q->>R: Handoff: test results + coverage
 
-        R->>S: Update task status → "In Review"
-        R->>R: Code review
+        R->>R: Code review on branch
         R->>R: Check alignment-spec.md
-        R->>R: Check architecture.md consistency
+        R->>R: Check architecture consistency
         R->>R: Validate decisions
 
         alt Approved
-            R->>S: Update task status → "Done ✅"
-            R->>D: Approved — proceed to next task
+            R->>GH: Raise PR: feature/... → main
+            R->>S: Update status.md → "In Review (PR raised)"
+            R->>N: Update Notion → "In Review" + PR URL
+            Note over R: Rishabh reviews and merges
         else Needs Rework
-            R->>S: Update task status → "Rework Needed"
-            R->>D: Specific feedback on what to change
-            Note over D: Fix → re-submit to QA
+            R->>S: Update status.md → "Rework Needed"
+            R->>N: Update Notion → "Rework Needed"
+            R->>D: Specific feedback → fix on same branch
         end
 
     else Tests Fail
-        Q->>S: Update task status → "QA Failed"
-        Q->>D: Bug report with reproduction steps
-        Note over D: Fix bugs → re-submit to QA
+        Q->>S: Update status.md → "QA Failed"
+        Q->>N: Update Notion → "QA Failed"
+        Q->>D: Bug report → fix on same branch
     end
 ```
 

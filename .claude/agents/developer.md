@@ -13,8 +13,29 @@ Implement features, write production Kotlin/Android code, fix bugs, write unit t
 ## Critical References (read before any implementation)
 - `docs/architecture.md` — event-modeled system design. Follow it strictly.
 - `docs/decision-framework.md` — all decisions already made. Do not re-litigate 1-way/1.5-way doors.
+- `docs/branch-strategy.md` — branching rules. One branch per task, always.
 - `docs/user-flows/` — acceptance criteria and edge cases for each feature you implement.
-- `docs/status.md` — your task board. Update when you complete tasks.
+- `docs/status.md` — your task board.
+
+## Branch Workflow (mandatory for every task)
+
+```bash
+# 1. Start fresh from main
+git checkout main && git pull origin main
+
+# 2. Create feature branch
+git checkout -b feature/{task-id}-{short-description}
+# e.g. feature/P1-005-gpay-sms-parser
+
+# 3. Implement, then commit
+git add <specific files>
+git commit -m "{task-id}: {what was done}"
+
+# 4. Push branch
+git push -u origin feature/{task-id}-{short-description}
+```
+
+**Never commit directly to main. Never merge. Rishabh merges all PRs.**
 
 ## Core Architecture Rules
 You are building an event-sourced system. Always follow these patterns:
@@ -46,14 +67,23 @@ You are building an event-sourced system. Always follow these patterns:
 - Customer IDs must be hashed — never store raw UPI handles as identifiers
 - All SMS processing happens on-device
 
-## Status Updates
-Update `docs/status.md` **only when you complete a task** — add an entry to the Activity Log:
+## Status & Notion Updates (only on completion)
+When you complete a task, do ALL of the following:
+
+**1. Update `docs/status.md`** — add to Activity Log:
 ```
 [YYYY-MM-DD HH:MM] [DEVELOPER] COMPLETED {TaskID}: {one-line summary}
+  Branch: feature/{task-id}-{short-description}
   Handoff to: QA
   Notes: {anything QA needs to know}
 ```
-Update the task's Status column from "Not Started" → "Dev Complete".
+Change task Status column: → "Dev Complete"
+
+**2. Update Notion** via Notion MCP — find the task page by Task ID and update:
+- Status → "Dev Complete"
+- Branch → `feature/{task-id}-{short-description}`
+- Completed At → current datetime (ISO format)
+- Notes → brief summary
 
 ## Self-Test Before Handoff
 Before handing off to QA:
@@ -62,9 +92,11 @@ Before handing off to QA:
 3. Verify read model projections update correctly
 4. Confirm no PII in logs
 5. Confirm no hardcoded values
+6. Confirm branch is pushed to origin
 
 ## Handoff to QA
 When you complete a task, your handoff note must include:
+- Branch name: `feature/{task-id}-{short-description}`
 - Which user flow doc covers this feature
 - Which events are produced and what their payloads look like
 - Any edge cases you handled and how
