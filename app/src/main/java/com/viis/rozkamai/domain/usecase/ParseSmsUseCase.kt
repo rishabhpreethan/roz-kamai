@@ -2,6 +2,7 @@ package com.viis.rozkamai.domain.usecase
 
 import com.viis.rozkamai.data.local.entity.EventEntity
 import com.viis.rozkamai.data.repository.EventRepository
+import com.viis.rozkamai.domain.model.ParsedTransaction
 import com.viis.rozkamai.domain.parser.ParseResult
 import com.viis.rozkamai.domain.parser.ParserRegistry
 import timber.log.Timber
@@ -10,58 +11,108 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Orchestrates SMS parsing and event production.
- * This is the only place that writes parsing-related events to the EventStore.
+ * Orchestrates the full SMS processing pipeline:
+ *   1. Pre-check for failed transaction language → TransactionFailed event
+ *   2. Parse via ParserRegistry
+ *   3. Deduplication check → DuplicateDetected event
+ *   4. Append TransactionDetected or ParseFailed event
+ *
+ * Single responsibility: this is the only class that writes parse-related events.
  */
 @Singleton
 class ParseSmsUseCase @Inject constructor(
     private val registry: ParserRegistry,
     private val eventRepository: EventRepository,
+    private val deduplicationChecker: DeduplicationChecker,
 ) {
     suspend fun execute(sender: String, body: String, receivedAt: Long): ParseResult {
         val senderMasked = "${sender.take(4)}***"
-        val parsed = registry.parse(sender, body, receivedAt)
 
-        return if (parsed != null) {
-            val payload = buildTransactionPayload(parsed)
-            eventRepository.appendEvent(
-                EventEntity(
-                    eventId = UUID.randomUUID().toString(),
-                    eventType = "TransactionDetected",
-                    timestamp = receivedAt,
-                    payload = payload,
-                    version = 1,
-                ),
-            )
-            Timber.d("TransactionDetected: source=${parsed.source}, type=${parsed.type}")
-            ParseResult.Success(transaction = parsed, parserSource = parsed.source)
-        } else {
-            val reason = "No parser matched sender $senderMasked"
-            eventRepository.appendEvent(
-                EventEntity(
-                    eventId = UUID.randomUUID().toString(),
-                    eventType = "ParseFailed",
-                    timestamp = receivedAt,
-                    payload = """{"sender_masked":"$senderMasked","reason":"no_parser_matched","body_length":${body.length}}""",
-                    version = 1,
-                ),
-            )
-            Timber.d("ParseFailed: sender=$senderMasked")
-            ParseResult.Failed(reason = reason, senderMasked = senderMasked)
+        // Step 1 — detect failed transaction before attempting to parse
+        if (FailedTransactionDetector.isFailedTransaction(body)) {
+            val amount = FailedTransactionDetector.extractAmount(body)
+            appendFailedTransactionEvent(senderMasked, amount, receivedAt)
+            Timber.d("TransactionFailed detected from $senderMasked")
+            return ParseResult.Failed(reason = "transaction_failed_in_sms", senderMasked = senderMasked)
         }
+
+        // Step 2 — parse
+        val parsed = registry.parse(sender, body, receivedAt)
+            ?: return run {
+                appendParseFailedEvent(senderMasked, body.length, receivedAt)
+                Timber.d("ParseFailed: no parser matched sender $senderMasked")
+                ParseResult.Failed(reason = "no_parser_matched", senderMasked = senderMasked)
+            }
+
+        // Step 3 — deduplication
+        if (deduplicationChecker.isDuplicate(parsed)) {
+            appendDuplicateDetectedEvent(parsed, receivedAt)
+            Timber.d("DuplicateDetected: amount=${parsed.amount}, type=${parsed.type}")
+            return ParseResult.Duplicate
+        }
+
+        // Step 4 — new transaction
+        appendTransactionDetectedEvent(parsed, receivedAt)
+        Timber.d("TransactionDetected: source=${parsed.source}, type=${parsed.type}")
+        return ParseResult.Success(transaction = parsed, parserSource = parsed.source)
     }
 
-    private fun buildTransactionPayload(parsed: com.viis.rozkamai.domain.model.ParsedTransaction): String {
-        // Amounts are safe to store — they are financial data, not PII
-        // UPI handles are already hashed by the parser via HashUtils
-        return buildString {
-            append("""{"amount":${parsed.amount}""")
-            append(""","type":"${parsed.type}"""")
-            append(""","source":"${parsed.source}"""")
-            parsed.upiHandleHash?.let { append(""","upi_handle_hash":"$it"""") }
-            parsed.referenceId?.let { append(""","reference_id":"$it"""") }
-            append(""","timestamp":${parsed.timestamp}""")
-            append("}")
-        }
+    private suspend fun appendTransactionDetectedEvent(parsed: ParsedTransaction, receivedAt: Long) {
+        eventRepository.appendEvent(
+            EventEntity(
+                eventId = UUID.randomUUID().toString(),
+                eventType = "TransactionDetected",
+                timestamp = receivedAt,
+                payload = buildTransactionPayload(parsed),
+                version = 1,
+            ),
+        )
+    }
+
+    private suspend fun appendParseFailedEvent(senderMasked: String, bodyLength: Int, receivedAt: Long) {
+        eventRepository.appendEvent(
+            EventEntity(
+                eventId = UUID.randomUUID().toString(),
+                eventType = "ParseFailed",
+                timestamp = receivedAt,
+                payload = """{"sender_masked":"$senderMasked","reason":"no_parser_matched","body_length":$bodyLength}""",
+                version = 1,
+            ),
+        )
+    }
+
+    private suspend fun appendFailedTransactionEvent(senderMasked: String, amount: Double?, receivedAt: Long) {
+        val amountField = if (amount != null) ""","amount":$amount""" else ""
+        eventRepository.appendEvent(
+            EventEntity(
+                eventId = UUID.randomUUID().toString(),
+                eventType = "TransactionFailed",
+                timestamp = receivedAt,
+                payload = """{"sender_masked":"$senderMasked"$amountField}""",
+                version = 1,
+            ),
+        )
+    }
+
+    private suspend fun appendDuplicateDetectedEvent(parsed: ParsedTransaction, receivedAt: Long) {
+        eventRepository.appendEvent(
+            EventEntity(
+                eventId = UUID.randomUUID().toString(),
+                eventType = "DuplicateDetected",
+                timestamp = receivedAt,
+                payload = """{"amount":${parsed.amount},"type":"${parsed.type}","source":"${parsed.source}"}""",
+                version = 1,
+            ),
+        )
+    }
+
+    private fun buildTransactionPayload(parsed: ParsedTransaction): String = buildString {
+        append("""{"amount":${parsed.amount}""")
+        append(""","type":"${parsed.type}"""")
+        append(""","source":"${parsed.source}"""")
+        parsed.upiHandleHash?.let { append(""","upi_handle_hash":"$it"""") }
+        parsed.referenceId?.let { append(""","reference_id":"$it"""") }
+        append(""","timestamp":${parsed.timestamp}""")
+        append("}")
     }
 }

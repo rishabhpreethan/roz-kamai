@@ -53,8 +53,8 @@
 | P1-010 | ICICI bank SMS parser | Developer | Dev Complete | P1 | P1-004 |
 | P1-011 | Axis bank SMS parser | Developer | Dev Complete | P1 | P1-004 |
 | P1-012 | Fallback regex parser (heuristic) | Developer | Dev Complete | P1 | P1-004 |
-| P1-013 | Transaction deduplication logic | Developer | Not Started | P0 | P1-004, P0-003 |
-| P1-014 | Failed transaction detection | Developer | Not Started | P0 | P1-004 |
+| P1-013 | Transaction deduplication logic | Developer | Dev Complete | P0 | P1-004, P0-003 |
+| P1-014 | Failed transaction detection | Developer | Dev Complete | P0 | P1-004 |
 | P1-015 | Transaction DAO + Room entities | Developer | Not Started | P0 | P0-003 |
 | P1-016 | Event store DAO (append-only event log) | Developer | Not Started | P0 | P0-003 |
 | P1-017 | SMSReceived event production | Developer | Not Started | P0 | P1-001, P1-016 |
@@ -69,8 +69,8 @@
 | P1-026 | Unit tests — ICICI parser | QA | Not Started | P1 | P1-010 |
 | P1-027 | Unit tests — Axis parser | QA | Not Started | P1 | P1-011 |
 | P1-028 | Unit tests — Fallback parser | QA | Not Started | P1 | P1-012 |
-| P1-029 | Unit tests — Deduplication logic | QA | Not Started | P0 | P1-013 |
-| P1-030 | Unit tests — Failed transaction detection | QA | Not Started | P0 | P1-014 |
+| P1-029 | Unit tests — Deduplication logic | QA | Dev Complete | P0 | P1-013 |
+| P1-030 | Unit tests — Failed transaction detection | QA | Dev Complete | P0 | P1-014 |
 | P1-031 | Integration test — SMS → Parse → Event → Store pipeline | QA | Not Started | P0 | P1-018 |
 | P1-032 | Parser accuracy validation (against SMS sample dataset) | QA | Not Started | P0 | P1-005 to P1-012, P0-009 |
 | P1-033 | Low-end device testing — SMS module | QA | Not Started | P1 | P1-031 |
@@ -221,6 +221,17 @@
     DAOs (5), ViisDatabase, Hilt DatabaseModule, SmsReceiver/BootReceiver stubs, AndroidManifest,
     Hinglish strings, proguard rules
   Notes: All architectural decisions followed — append-only events, hashed customer IDs, no PII in logs
+[2026-03-28 14:30] [DEVELOPER] COMPLETED P1-013, P1-014: Deduplication + failed transaction detection
+  Branch: feature/P1-013-014-dedup-failed-detection
+  Deliverables:
+    - FailedTransactionDetector: 12 failure keyword patterns (object, no injection)
+    - DeduplicationChecker: 5-minute window, amount+type+upiHash matching (or source fallback)
+    - EventDao.getTransactionDetectedInWindow(): query for dedup window
+    - EventRepository + EventRepositoryImpl: new method added
+    - ParseSmsUseCase: rewritten as 4-step pipeline (failed → parse → dedup → emit)
+    - FailedTransactionDetectorTest: 14 tests
+    - DeduplicationCheckerTest: 7 tests
+    - ParseSmsUseCaseTest: updated — DeduplicationChecker mock added, 2 new tests
 [2026-03-28 10:30] [DEVELOPER] COMPLETED P0-004: CI/CD pipeline (GitHub Actions)
   Branch: main
   Deliverables: .github/workflows/ci.yml — 3 jobs: lint (ktlint), unit-tests, build debug APK

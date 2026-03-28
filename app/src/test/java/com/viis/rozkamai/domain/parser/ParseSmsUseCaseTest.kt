@@ -5,8 +5,10 @@ import com.viis.rozkamai.data.repository.EventRepository
 import com.viis.rozkamai.domain.event.PaymentSource
 import com.viis.rozkamai.domain.model.ParsedTransaction
 import com.viis.rozkamai.domain.model.TransactionType
+import com.viis.rozkamai.domain.usecase.DeduplicationChecker
 import com.viis.rozkamai.domain.usecase.ParseSmsUseCase
 import com.viis.rozkamai.util.BaseUnitTest
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -19,6 +21,7 @@ class ParseSmsUseCaseTest : BaseUnitTest() {
 
     private lateinit var registry: ParserRegistry
     private lateinit var eventRepository: EventRepository
+    private lateinit var deduplicationChecker: DeduplicationChecker
     private lateinit var useCase: ParseSmsUseCase
 
     private val sender = "GPAY"
@@ -41,12 +44,14 @@ class ParseSmsUseCaseTest : BaseUnitTest() {
         super.setUp()
         registry = mockk()
         eventRepository = mockk(relaxed = true)
-        useCase = ParseSmsUseCase(registry, eventRepository)
+        deduplicationChecker = mockk()
+        useCase = ParseSmsUseCase(registry, eventRepository, deduplicationChecker)
     }
 
     @Test
     fun `successful parse appends TransactionDetected event`() = runTest {
         every { registry.parse(sender, body, receivedAt) } returns makeTransaction()
+        coEvery { deduplicationChecker.isDuplicate(any()) } returns false
 
         useCase.execute(sender, body, receivedAt)
 
@@ -60,6 +65,7 @@ class ParseSmsUseCaseTest : BaseUnitTest() {
     @Test
     fun `successful parse returns Success`() = runTest {
         every { registry.parse(sender, body, receivedAt) } returns makeTransaction()
+        coEvery { deduplicationChecker.isDuplicate(any()) } returns false
 
         val result = useCase.execute(sender, body, receivedAt)
 
@@ -91,6 +97,7 @@ class ParseSmsUseCaseTest : BaseUnitTest() {
     @Test
     fun `TransactionDetected payload contains amount`() = runTest {
         every { registry.parse(sender, body, receivedAt) } returns makeTransaction()
+        coEvery { deduplicationChecker.isDuplicate(any()) } returns false
 
         useCase.execute(sender, body, receivedAt)
 
@@ -117,9 +124,39 @@ class ParseSmsUseCaseTest : BaseUnitTest() {
     @Test
     fun `success result carries correct parserSource`() = runTest {
         every { registry.parse(sender, body, receivedAt) } returns makeTransaction()
+        coEvery { deduplicationChecker.isDuplicate(any()) } returns false
 
         val result = useCase.execute(sender, body, receivedAt) as ParseResult.Success
 
         assertTrue(result.parserSource == PaymentSource.UPI)
+    }
+
+    @Test
+    fun `duplicate transaction appends DuplicateDetected event and returns Duplicate`() = runTest {
+        every { registry.parse(sender, body, receivedAt) } returns makeTransaction()
+        coEvery { deduplicationChecker.isDuplicate(any()) } returns true
+
+        val result = useCase.execute(sender, body, receivedAt)
+
+        assertTrue(result is ParseResult.Duplicate)
+        coVerify {
+            eventRepository.appendEvent(match { event: EventEntity ->
+                event.eventType == "DuplicateDetected"
+            })
+        }
+    }
+
+    @Test
+    fun `failed transaction SMS returns Failed without calling parser`() = runTest {
+        val failedBody = "Your GPay transaction of Rs 500 has failed."
+
+        val result = useCase.execute(sender, failedBody, receivedAt)
+
+        assertTrue(result is ParseResult.Failed)
+        coVerify {
+            eventRepository.appendEvent(match { event: EventEntity ->
+                event.eventType == "TransactionFailed"
+            })
+        }
     }
 }
