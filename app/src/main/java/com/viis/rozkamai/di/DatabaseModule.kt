@@ -18,7 +18,7 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): ViisDatabase =
         Room.databaseBuilder(context, ViisDatabase::class.java, ViisDatabase.DATABASE_NAME)
-            .fallbackToDestructiveMigrationOnDowngrade()
+            .fallbackToDestructiveMigration() // pre-production only — no user data to preserve
             .build()
 
     @Provides

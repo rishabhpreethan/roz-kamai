@@ -21,7 +21,7 @@ import com.viis.rozkamai.data.local.entity.TransactionEntity
         HourlyStatsEntity::class,
         CustomerProfileEntity::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 abstract class ViisDatabase : RoomDatabase() {

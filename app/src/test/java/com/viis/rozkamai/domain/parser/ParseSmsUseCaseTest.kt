@@ -7,6 +7,7 @@ import com.viis.rozkamai.domain.model.ParsedTransaction
 import com.viis.rozkamai.domain.model.TransactionType
 import com.viis.rozkamai.domain.usecase.DeduplicationChecker
 import com.viis.rozkamai.domain.usecase.ParseSmsUseCase
+import com.viis.rozkamai.domain.usecase.TransactionProjector
 import com.viis.rozkamai.util.BaseUnitTest
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -22,6 +23,7 @@ class ParseSmsUseCaseTest : BaseUnitTest() {
     private lateinit var registry: ParserRegistry
     private lateinit var eventRepository: EventRepository
     private lateinit var deduplicationChecker: DeduplicationChecker
+    private lateinit var transactionProjector: TransactionProjector
     private lateinit var useCase: ParseSmsUseCase
 
     private val sender = "GPAY"
@@ -45,7 +47,8 @@ class ParseSmsUseCaseTest : BaseUnitTest() {
         registry = mockk()
         eventRepository = mockk(relaxed = true)
         deduplicationChecker = mockk()
-        useCase = ParseSmsUseCase(registry, eventRepository, deduplicationChecker)
+        transactionProjector = mockk(relaxed = true)
+        useCase = ParseSmsUseCase(registry, eventRepository, deduplicationChecker, transactionProjector)
     }
 
     @Test

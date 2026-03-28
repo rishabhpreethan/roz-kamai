@@ -55,12 +55,12 @@
 | P1-012 | Fallback regex parser (heuristic) | Developer | Dev Complete | P1 | P1-004 |
 | P1-013 | Transaction deduplication logic | Developer | Dev Complete | P0 | P1-004, P0-003 |
 | P1-014 | Failed transaction detection | Developer | Dev Complete | P0 | P1-004 |
-| P1-015 | Transaction DAO + Room entities | Developer | Not Started | P0 | P0-003 |
-| P1-016 | Event store DAO (append-only event log) | Developer | Not Started | P0 | P0-003 |
-| P1-017 | SMSReceived event production | Developer | Not Started | P0 | P1-001, P1-016 |
-| P1-018 | TransactionDetected event production | Developer | Not Started | P0 | P1-004, P1-016 |
-| P1-019 | ParseFailed / DuplicateDetected event production | Developer | Not Started | P1 | P1-004, P1-016 |
-| P1-020 | Boot complete receiver (re-register SMS listener) | Developer | Not Started | P1 | P1-001 |
+| P1-015 | Transaction DAO + Room entities | Developer | Dev Complete | P0 | P0-003 |
+| P1-016 | Event store DAO (append-only event log) | Developer | Dev Complete | P0 | P0-003 |
+| P1-017 | SMSReceived event production | Developer | Dev Complete | P0 | P1-001, P1-016 |
+| P1-018 | TransactionDetected event production | Developer | Dev Complete | P0 | P1-004, P1-016 |
+| P1-019 | ParseFailed / DuplicateDetected event production | Developer | Dev Complete | P1 | P1-004, P1-016 |
+| P1-020 | Boot complete receiver (re-register SMS listener) | Developer | Dev Complete | P1 | P1-001 |
 | P1-021 | Unit tests — GPay parser | QA | Not Started | P0 | P1-005 |
 | P1-022 | Unit tests — PhonePe parser | QA | Not Started | P0 | P1-006 |
 | P1-023 | Unit tests — Paytm parser | QA | Not Started | P0 | P1-007 |
@@ -232,6 +232,19 @@
     - FailedTransactionDetectorTest: 14 tests
     - DeduplicationCheckerTest: 7 tests
     - ParseSmsUseCaseTest: updated — DeduplicationChecker mock added, 2 new tests
+[2026-03-28 15:30] [DEVELOPER] COMPLETED P1-015–P1-020: Transaction projection, event pipeline, boot receiver
+  Branch: feature/P1-015-020-transaction-projection-events-boot
+  Deliverables:
+    - TransactionEntity: fixed schema — added type, renamed upiHandle→upiHandleHash,
+      senderName→rawSenderMasked, removed status index (now indexed by type)
+    - TransactionDao: removed findDuplicate (superseded by EventDao dedup), queries updated to type='CREDIT'
+    - ViisDatabase: bumped to version 2; DatabaseModule uses fallbackToDestructiveMigration()
+    - TransactionProjector: projects ParsedTransaction → TransactionEntity after TransactionDetected event
+    - ParseSmsUseCase: wires TransactionProjector in step 4; event ID shared between event + projection
+    - SmsProcessingWorker: produces SMSReceived event (audit trail) before calling ParseSmsUseCase
+    - BootReceiver: fully implemented — initializes WorkManager, guards on BOOT_COMPLETED action
+    - TransactionProjectorTest: 10 tests covering all mapped fields
+    - ParseSmsUseCaseTest: updated with TransactionProjector mock
 [2026-03-28 10:30] [DEVELOPER] COMPLETED P0-004: CI/CD pipeline (GitHub Actions)
   Branch: main
   Deliverables: .github/workflows/ci.yml — 3 jobs: lint (ktlint), unit-tests, build debug APK
