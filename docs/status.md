@@ -41,9 +41,9 @@
 
 | Task ID | Task Name | Agent | Status | Priority | Dependencies |
 |---|---|---|---|---|---|
-| P1-001 | SMS BroadcastReceiver implementation | Developer | Not Started | P0 | P0-001 |
+| P1-001 | SMS BroadcastReceiver implementation | Developer | Dev Complete | P0 | P0-001 |
 | P1-002 | SMS permission handling (request, explain, retry, settings redirect) | Developer | Not Started | P0 | P0-001 |
-| P1-003 | SMS sender ID filter list | Developer | Not Started | P0 | P1-001 |
+| P1-003 | SMS sender ID filter list | Developer | Dev Complete | P0 | P1-001 |
 | P1-004 | Parser registry architecture (interface, registry, fallback chain) | Developer | Not Started | P0 | P0-001, P0-003 |
 | P1-005 | GPay SMS parser | Developer | Not Started | P0 | P1-004 |
 | P1-006 | PhonePe SMS parser | Developer | Not Started | P0 | P1-004 |
@@ -237,6 +237,13 @@
   Branch: main
   Deliverables: app/src/test/resources/sms-samples/ — GPay, PhonePe, Paytm, SBI, HDFC, ICICI, Axis, unknown
     All samples anonymized (fake UPI handles, fake names, fake amounts)
+[2026-03-28 12:00] [DEVELOPER] COMPLETED P1-001, P1-003: SMS BroadcastReceiver + sender filter
+  Branch: feature/P1-001-sms-broadcast-receiver
+  Handoff to: QA
+  Notes: SmsReceiver filters by sender ID, enqueues SmsProcessingWorker via WorkManager.
+    SmsSenderFilter covers 15 known financial senders (covers P1-003).
+    EventRepository created for append-only writes.
+    SMSReceived event produced for every financial SMS.
 ```
 
 ---
@@ -253,6 +260,8 @@
 | P0-007 | 2026-03-28 | Test base classes + event utilities + Flow test utils |
 | P0-008 | 2026-03-28 | Low-end device profile doc (2GB RAM, API 23) |
 | P0-009 | 2026-03-28 | SMS sample dataset — 7 sources, credit/debit/failed/duplicate |
+| P1-001 | 2026-03-28 | SmsReceiver + SmsProcessingWorker + EventRepository + DI modules |
+| P1-003 | 2026-03-28 | SmsSenderFilter — 15 financial sender IDs, case-insensitive |
 
 ---
 
