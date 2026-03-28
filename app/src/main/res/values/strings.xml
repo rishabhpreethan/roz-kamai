@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Roz Kamai</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_trust_title">Aapka paisa safe hai</string>
+    <string name="onboarding_trust_body">Paisa seedha aapke account mein aata hai.\nHum sirf payment messages padhte hain.\nKoi bank login nahi chahiye.</string>
+    <string name="onboarding_feature_title">Roz ka hisaab, bina kuch likhe</string>
+    <string name="onboarding_how_title">Kaise kaam karta hai?</string>
+    <string name="onboarding_how_body">Payment aayega → SMS aayega → Hum gin lenge.\nBas SMS permission do, baaki hum sambhaal lenge.</string>
+
+    <!-- Permissions -->
+    <string name="permission_sms_rationale">Hum sirf bank aur UPI messages padhte hain.\nPersonal messages nahi.\nAapka data phone mein hi rehta hai.</string>
+    <string name="permission_sms_denied">SMS permission ke bina app kaam nahi kar payega</string>
+    <string name="permission_settings_button">Settings mein jaayein</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_no_transactions">Jaise hi UPI/bank payment aayega, yahan dikhega</string>
+    <string name="dashboard_income_today">Aaj ₹%1$s aaya</string>
+    <string name="dashboard_vs_yesterday_more">Kal se ₹%1$s zyada</string>
+    <string name="dashboard_vs_yesterday_less">Kal se ₹%1$s kam</string>
+    <string name="dashboard_vs_yesterday_same">Kal jitna hi aaya</string>
+</resources>
