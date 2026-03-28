@@ -28,4 +28,16 @@ interface EventDao {
 
     @Query("SELECT COUNT(*) FROM events")
     suspend fun getEventCount(): Long
+
+    /**
+     * Used by DeduplicationChecker — finds TransactionDetected events in a time window
+     * whose payload contains the given amount string. Payload filtering is done in-memory
+     * after this query to avoid LIKE on JSON (no index benefit anyway at this scale).
+     */
+    @Query(
+        """SELECT * FROM events
+           WHERE event_type = 'TransactionDetected'
+           AND timestamp BETWEEN :fromTimestamp AND :toTimestamp"""
+    )
+    suspend fun getTransactionDetectedInWindow(fromTimestamp: Long, toTimestamp: Long): List<EventEntity>
 }

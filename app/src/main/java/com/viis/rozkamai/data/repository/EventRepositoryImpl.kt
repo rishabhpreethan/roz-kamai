@@ -15,4 +15,7 @@ class EventRepositoryImpl @Inject constructor(
     override suspend fun appendEvent(event: EventEntity) {
         eventDao.appendEvent(event)
     }
+
+    override suspend fun getTransactionDetectedInWindow(fromTimestamp: Long, toTimestamp: Long): List<EventEntity> =
+        eventDao.getTransactionDetectedInWindow(fromTimestamp, toTimestamp)
 }

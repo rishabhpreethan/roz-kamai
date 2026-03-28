@@ -8,4 +8,5 @@ import com.viis.rozkamai.data.local.entity.EventEntity
  */
 interface EventRepository {
     suspend fun appendEvent(event: EventEntity)
+    suspend fun getTransactionDetectedInWindow(fromTimestamp: Long, toTimestamp: Long): List<EventEntity>
 }
