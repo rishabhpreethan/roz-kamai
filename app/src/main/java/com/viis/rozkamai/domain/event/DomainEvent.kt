@@ -125,7 +125,10 @@ sealed class DomainEvent {
 }
 
 enum class PaymentSource {
-    UPI, NEFT, IMPS, BANK, UNKNOWN
+    GPAY, PHONEPE, PAYTM,          // UPI apps
+    SBI, HDFC, ICICI, AXIS,        // Bank SMS
+    UPI, NEFT, IMPS, BANK,         // Generic / fallback
+    UNKNOWN
 }
 
 enum class InsightType {

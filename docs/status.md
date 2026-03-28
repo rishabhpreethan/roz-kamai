@@ -45,14 +45,14 @@
 | P1-002 | SMS permission handling (request, explain, retry, settings redirect) | Developer | Dev Complete | P0 | P0-001 |
 | P1-003 | SMS sender ID filter list | Developer | Dev Complete | P0 | P1-001 |
 | P1-004 | Parser registry architecture (interface, registry, fallback chain) | Developer | Dev Complete | P0 | P0-001, P0-003 |
-| P1-005 | GPay SMS parser | Developer | Not Started | P0 | P1-004 |
-| P1-006 | PhonePe SMS parser | Developer | Not Started | P0 | P1-004 |
-| P1-007 | Paytm SMS parser | Developer | Not Started | P0 | P1-004 |
-| P1-008 | SBI bank SMS parser | Developer | Not Started | P1 | P1-004 |
-| P1-009 | HDFC bank SMS parser | Developer | Not Started | P1 | P1-004 |
-| P1-010 | ICICI bank SMS parser | Developer | Not Started | P1 | P1-004 |
-| P1-011 | Axis bank SMS parser | Developer | Not Started | P1 | P1-004 |
-| P1-012 | Fallback regex parser (heuristic) | Developer | Not Started | P1 | P1-004 |
+| P1-005 | GPay SMS parser | Developer | Dev Complete | P0 | P1-004 |
+| P1-006 | PhonePe SMS parser | Developer | Dev Complete | P0 | P1-004 |
+| P1-007 | Paytm SMS parser | Developer | Dev Complete | P0 | P1-004 |
+| P1-008 | SBI bank SMS parser | Developer | Dev Complete | P1 | P1-004 |
+| P1-009 | HDFC bank SMS parser | Developer | Dev Complete | P1 | P1-004 |
+| P1-010 | ICICI bank SMS parser | Developer | Dev Complete | P1 | P1-004 |
+| P1-011 | Axis bank SMS parser | Developer | Dev Complete | P1 | P1-004 |
+| P1-012 | Fallback regex parser (heuristic) | Developer | Dev Complete | P1 | P1-004 |
 | P1-013 | Transaction deduplication logic | Developer | Not Started | P0 | P1-004, P0-003 |
 | P1-014 | Failed transaction detection | Developer | Not Started | P0 | P1-004 |
 | P1-015 | Transaction DAO + Room entities | Developer | Not Started | P0 | P0-003 |
