@@ -1,0 +1,3 @@
+Received Rs. 150 from Paytm user. Txn ID: PAYTM100001
+You have received Rs. 400 in your Paytm wallet from customer. Txn ID: PAYTM100002
+Paytm: Rs.600 received from buyer. Txn ID: PAYTM100003

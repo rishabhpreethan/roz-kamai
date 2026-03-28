@@ -1,6 +1,6 @@
 # Project Status — VIIS (Vendor Income Intelligence System)
 
-**Overall Status**: 🟡 Planning
+**Overall Status**: 🟡 In Progress
 **Current Phase**: Phase 0 — Project Setup & Architecture
 **Last Updated**: 2026-03-28
 
@@ -25,15 +25,15 @@
 
 | Task ID | Task Name | Agent | Status | Priority | Dependencies |
 |---|---|---|---|---|---|
-| P0-001 | Android project scaffolding (Kotlin, Gradle) | Developer | Not Started | P0 | — |
-| P0-002 | Hilt DI module setup | Developer | Not Started | P0 | P0-001 |
-| P0-003 | Room database setup (event store + projections) | Developer | Not Started | P0 | P0-001 |
-| P0-004 | CI/CD pipeline (GitHub Actions) | Developer | Not Started | P1 | P0-001 |
-| P0-005 | Linting & code style (ktlint) | Developer | Not Started | P1 | P0-001 |
+| P0-001 | Android project scaffolding (Kotlin, Gradle) | Developer | ✅ Done | P0 | — |
+| P0-002 | Hilt DI module setup | Developer | ✅ Done | P0 | P0-001 |
+| P0-003 | Room database setup (event store + projections) | Developer | ✅ Done | P0 | P0-001 |
+| P0-004 | CI/CD pipeline (GitHub Actions) | Developer | ✅ Done | P1 | P0-001 |
+| P0-005 | Linting & code style (ktlint) | Developer | ✅ Done | P1 | P0-001 |
 | P0-006 | Architecture review | Reviewer | Not Started | P0 | P0-003 |
-| P0-007 | Test framework setup (JUnit5, MockK, Turbine) | QA | Not Started | P0 | P0-001 |
-| P0-008 | Low-end device test profile setup | QA | Not Started | P1 | P0-007 |
-| P0-009 | SMS sample dataset collection (anonymized) | QA | Not Started | P0 | — |
+| P0-007 | Test framework setup (JUnit5, MockK, Turbine) | QA | ✅ Done | P0 | P0-001 |
+| P0-008 | Low-end device test profile setup | QA | ✅ Done | P1 | P0-007 |
+| P0-009 | SMS sample dataset collection (anonymized) | QA | ✅ Done | P0 | — |
 | P0-010 | Event store schema review | Reviewer | Not Started | P0 | P0-003 |
 | P0-011 | Project documentation review | Reviewer | 🟡 In Progress | P0 | — |
 
@@ -214,13 +214,45 @@
   - status.md (134 tasks across 6 phases)
   - 24 user flow documents
 [2026-03-28 00:30] [REVIEWER] P0-011: Project documentation review — In Progress
+[2026-03-28 10:00] [DEVELOPER] COMPLETED P0-001, P0-002, P0-003: Android project scaffolding
+  Branch: main (scaffolding committed directly to main before feature branch workflow activated)
+  Commit: bd1e812
+  Deliverables: Gradle project structure, domain event sealed classes (16 types), Room entities (5),
+    DAOs (5), ViisDatabase, Hilt DatabaseModule, SmsReceiver/BootReceiver stubs, AndroidManifest,
+    Hinglish strings, proguard rules
+  Notes: All architectural decisions followed — append-only events, hashed customer IDs, no PII in logs
+[2026-03-28 10:30] [DEVELOPER] COMPLETED P0-004: CI/CD pipeline (GitHub Actions)
+  Branch: main
+  Deliverables: .github/workflows/ci.yml — 3 jobs: lint (ktlint), unit-tests, build debug APK
+[2026-03-28 10:30] [DEVELOPER] COMPLETED P0-005: Linting & code style (ktlint)
+  Branch: main
+  Deliverables: ktlint plugin added to libs.versions.toml + app/build.gradle.kts; .editorconfig with 120-char limit
+[2026-03-28 10:30] [QA] COMPLETED P0-007: Test framework setup (JUnit5, MockK, Turbine)
+  Branch: main
+  Deliverables: BaseUnitTest, MainDispatcherRule, EventTestUtils, FlowTestUtils in test/util/
+[2026-03-28 10:30] [QA] COMPLETED P0-008: Low-end device test profile setup
+  Branch: main
+  Deliverables: docs/test-profiles.md with AVD spec (2GB RAM, API 23), performance thresholds, offline checklist
+[2026-03-28 10:30] [QA] COMPLETED P0-009: SMS sample dataset collection
+  Branch: main
+  Deliverables: app/src/test/resources/sms-samples/ — GPay, PhonePe, Paytm, SBI, HDFC, ICICI, Axis, unknown
+    All samples anonymized (fake UPI handles, fake names, fake amounts)
 ```
 
 ---
 
 ## Completed Tasks
 
-_None yet._
+| Task ID | Completed At | Notes |
+|---|---|---|
+| P0-001 | 2026-03-28 | Android project scaffolding — 29 files, 1027 lines |
+| P0-002 | 2026-03-28 | Hilt DI module with all 5 DAOs |
+| P0-003 | 2026-03-28 | Room DB: EventEntity (append-only), 4 projection entities |
+| P0-004 | 2026-03-28 | GitHub Actions CI: lint + test + build |
+| P0-005 | 2026-03-28 | ktlint + .editorconfig |
+| P0-007 | 2026-03-28 | Test base classes + event utilities + Flow test utils |
+| P0-008 | 2026-03-28 | Low-end device profile doc (2GB RAM, API 23) |
+| P0-009 | 2026-03-28 | SMS sample dataset — 7 sources, credit/debit/failed/duplicate |
 
 ---
 

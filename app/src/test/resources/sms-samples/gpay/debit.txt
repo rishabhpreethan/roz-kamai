@@ -1,0 +1,2 @@
+Rs. 100 debited from your account to merchant@oksbi via GPay. Ref: TEST010
+Rs. 200 debited from your account to shop@okaxis via GPay. Ref: TEST011

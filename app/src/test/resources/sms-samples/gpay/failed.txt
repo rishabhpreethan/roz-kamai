@@ -1,0 +1,2 @@
+Your GPay transaction of Rs. 500 to merchant@okaxis has failed. Please try again.
+Payment of Rs. 100 failed. Transaction declined.
