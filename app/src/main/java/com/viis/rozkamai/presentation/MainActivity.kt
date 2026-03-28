@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.viis.rozkamai.infrastructure.sms.SmsPermissionManager
+import com.viis.rozkamai.presentation.home.HomeScreen
 import com.viis.rozkamai.presentation.permission.SmsPermissionScreen
 import com.viis.rozkamai.presentation.theme.RozKamaiTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,8 +25,9 @@ class MainActivity : ComponentActivity() {
                     SmsPermissionScreen(
                         onPermissionGranted = { recreate() },
                     )
+                } else {
+                    HomeScreen()
                 }
-                // Main navigation host goes here (Phase 2)
             }
         }
     }
