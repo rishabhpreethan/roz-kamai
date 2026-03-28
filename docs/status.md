@@ -42,7 +42,7 @@
 | Task ID | Task Name | Agent | Status | Priority | Dependencies |
 |---|---|---|---|---|---|
 | P1-001 | SMS BroadcastReceiver implementation | Developer | Dev Complete | P0 | P0-001 |
-| P1-002 | SMS permission handling (request, explain, retry, settings redirect) | Developer | Not Started | P0 | P0-001 |
+| P1-002 | SMS permission handling (request, explain, retry, settings redirect) | Developer | Dev Complete | P0 | P0-001 |
 | P1-003 | SMS sender ID filter list | Developer | Dev Complete | P0 | P1-001 |
 | P1-004 | Parser registry architecture (interface, registry, fallback chain) | Developer | Not Started | P0 | P0-001, P0-003 |
 | P1-005 | GPay SMS parser | Developer | Not Started | P0 | P1-004 |
@@ -244,6 +244,12 @@
     SmsSenderFilter covers 15 known financial senders (covers P1-003).
     EventRepository created for append-only writes.
     SMSReceived event produced for every financial SMS.
+[2026-03-28 13:00] [DEVELOPER] COMPLETED P1-002: SMS permission handling
+  Branch: feature/P1-002-sms-permission-handling
+  Handoff to: QA
+  Notes: SmsPermissionScreen (3 states: NeedsRequest, NeedsRationale, PermanentlyDenied).
+    SmsPermissionViewModel produces PermissionGranted/PermissionDenied events.
+    Settings redirect implemented for permanently denied state. Hinglish UI strings added.
 ```
 
 ---
