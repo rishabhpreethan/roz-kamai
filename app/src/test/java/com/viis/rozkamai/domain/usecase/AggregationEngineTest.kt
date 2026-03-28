@@ -1,5 +1,6 @@
 package com.viis.rozkamai.domain.usecase
 
+import com.viis.rozkamai.data.local.dao.CustomerProfileDao
 import com.viis.rozkamai.data.local.dao.DailySummaryDao
 import com.viis.rozkamai.data.local.dao.HourlyStatsDao
 import com.viis.rozkamai.data.local.dao.TransactionDao
@@ -28,6 +29,7 @@ class AggregationEngineTest : BaseUnitTest() {
     private lateinit var transactionDao: TransactionDao
     private lateinit var dailySummaryDao: DailySummaryDao
     private lateinit var hourlyStatsDao: HourlyStatsDao
+    private lateinit var customerProfileDao: CustomerProfileDao
     private lateinit var insightCalculator: InsightCalculator
     private lateinit var eventRepository: EventRepository
     private lateinit var engine: AggregationEngine
@@ -42,6 +44,7 @@ class AggregationEngineTest : BaseUnitTest() {
         transactionDao = mockk(relaxed = true)
         dailySummaryDao = mockk(relaxed = true)
         hourlyStatsDao = mockk(relaxed = true)
+        customerProfileDao = mockk(relaxed = true)
         insightCalculator = mockk(relaxed = true)
         eventRepository = mockk(relaxed = true)
 
@@ -50,9 +53,11 @@ class AggregationEngineTest : BaseUnitTest() {
         coEvery { insightCalculator.computeConsistencyScore(any()) } returns null
         coEvery { hourlyStatsDao.getPeakHourForDate(any()) } returns null
         coEvery { hourlyStatsDao.getByDateAndHour(any(), any()) } returns null
+        coEvery { customerProfileDao.countNewCustomersForDate(any()) } returns 0
+        coEvery { customerProfileDao.countReturningCustomersForDate(any()) } returns 0
 
         engine = AggregationEngine(
-            transactionDao, dailySummaryDao, hourlyStatsDao, insightCalculator, eventRepository,
+            transactionDao, dailySummaryDao, hourlyStatsDao, customerProfileDao, insightCalculator, eventRepository,
         )
     }
 

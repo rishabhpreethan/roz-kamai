@@ -11,15 +11,18 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Projects a ParsedTransaction into the transactions read model table,
- * then triggers AggregationEngine to recompute all daily/hourly summaries.
+ * Projects a ParsedTransaction into the transactions read model table, then:
+ *   1. Identifies the customer (CustomerIdentificationService) — must run before aggregation
+ *      so that new/returning counts are current when DailySummaryEntity is written.
+ *   2. Triggers AggregationEngine to recompute all daily/hourly summaries.
  *
- * The read model (transactions table) can be fully rebuilt from the event store.
- * The aggregation projections (daily_summaries, hourly_stats) follow the same rule.
+ * The read model (transactions + summaries + customer_profiles) can be fully
+ * rebuilt from the event store if ever needed.
  */
 @Singleton
 class TransactionProjector @Inject constructor(
     private val transactionDao: TransactionDao,
+    private val customerIdentificationService: CustomerIdentificationService,
     private val aggregationEngine: AggregationEngine,
 ) {
     private val dateBucketFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
@@ -40,6 +43,10 @@ class TransactionProjector @Inject constructor(
             status = "SUCCESS",
         )
         transactionDao.insert(entity)
+
+        // Customer identification must happen before aggregation so that the
+        // daily new/returning customer counts in DailySummaryEntity are current.
+        customerIdentificationService.identify(transaction, eventId)
         aggregationEngine.aggregate(transaction, dateBucket)
     }
 }
