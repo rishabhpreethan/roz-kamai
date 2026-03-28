@@ -68,7 +68,7 @@ class SmsProcessingWorker @AssistedInject constructor(
                 }
             }
         } catch (e: Exception) {
-            Timber.e("SmsProcessingWorker: unexpected error — ${e.javaClass.simpleName}")
+            Timber.e(e, "SmsProcessingWorker: unexpected error")
             Result.retry()
         }
     }

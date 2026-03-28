@@ -24,13 +24,18 @@ class ParserRegistry @Inject constructor(
     fun parse(sender: String, body: String, receivedAt: Long): ParsedTransaction? {
         val parser = findParser(sender, body) ?: return null
         return runCatching { parser.parse(sender, body, receivedAt) }
-            .onFailure { Timber.e("Parser ${parser.source} threw unexpectedly: ${it.javaClass.simpleName}") }
+            .onFailure { Timber.e(it, "Parser ${parser.source} threw unexpectedly") }
             .getOrNull()
     }
 
     /**
      * Returns the highest-priority parser that claims it can handle this sender/body.
+     * Exceptions in canParse are caught so a broken parser cannot crash the receiver.
      */
     fun findParser(sender: String, body: String): SmsParser? =
-        sortedParsers.firstOrNull { it.canParse(sender, body) }
+        sortedParsers.firstOrNull { parser ->
+            runCatching { parser.canParse(sender, body) }
+                .onFailure { Timber.e(it, "canParse threw for ${parser.source} — skipping") }
+                .getOrDefault(false)
+        }
 }

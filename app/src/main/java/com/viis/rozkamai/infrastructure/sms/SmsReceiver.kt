@@ -37,9 +37,11 @@ class SmsReceiver : BroadcastReceiver() {
 
             Timber.d("Financial SMS received from: ${sender.take(4)}***")
 
+            // WorkManager Data has a 10KB total limit. Financial SMS bodies are always
+            // well under 1600 chars (GSM multi-part limit), but truncate defensively.
             val inputData = Data.Builder()
                 .putString(SmsProcessingWorker.KEY_SENDER, sender)
-                .putString(SmsProcessingWorker.KEY_BODY, body)
+                .putString(SmsProcessingWorker.KEY_BODY, body.take(2000))
                 .putLong(SmsProcessingWorker.KEY_RECEIVED_AT, System.currentTimeMillis())
                 .build()
 
