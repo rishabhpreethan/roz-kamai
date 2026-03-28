@@ -74,10 +74,10 @@
 | P1-031 | Integration test — SMS → Parse → Event → Store pipeline | QA | Dev Complete | P0 | P1-018 |
 | P1-032 | Parser accuracy validation (against SMS sample dataset) | QA | Dev Complete | P0 | P1-005 to P1-012, P0-009 |
 | P1-033 | Low-end device testing — SMS module | QA | Not Started | P1 | P1-031 |
-| P1-034 | Code review — SMS listener + permission | Reviewer | Not Started | P0 | P1-021, P1-031 |
-| P1-035 | Code review — Parser registry + all parsers | Reviewer | Not Started | P0 | P1-032 |
-| P1-036 | Alignment check — Module 1 & 2 (SMS + Parsing) | Reviewer | Not Started | P0 | P1-034, P1-035 |
-| P1-037 | Event model review — correct events, immutability | Reviewer | Not Started | P0 | P1-018, P1-019 |
+| P1-034 | Code review — SMS listener + permission | Reviewer | Dev Complete | P0 | P1-021, P1-031 |
+| P1-035 | Code review — Parser registry + all parsers | Reviewer | Dev Complete | P0 | P1-032 |
+| P1-036 | Alignment check — Module 1 & 2 (SMS + Parsing) | Reviewer | Dev Complete | P0 | P1-034, P1-035 |
+| P1-037 | Event model review — correct events, immutability | Reviewer | Dev Complete | P0 | P1-018, P1-019 |
 
 ### Phase 2 — Insights & Dashboard (V1)
 
@@ -263,6 +263,19 @@
       validates correct source/type/amount per dataset. Non-financial and ambiguous samples
       confirmed null. Duplicate sample confirmed parseable (dedup is use-case concern).
       Acts as regression guard against regex changes.
+[2026-03-28 18:30] [REVIEWER] COMPLETED P1-034–P1-037: Code review, alignment, event model review
+  Branch: feature/P1-034-037-review-fixes
+  Findings fixed:
+    SECURITY/PRIVACY: Removed READ_SMS permission (never used); BootReceiver exported=false
+      (was true — 3rd-party apps could fake BOOT_COMPLETED); DomainEvent sealed class had
+      raw SMS body, full sender IDs, unhashed UPI handles, display names — all replaced with
+      privacy-safe equivalents; Transaction domain model senderName→rawSenderMasked,
+      upiHandle→upiHandleHash
+    DATA ACCURACY: FallbackSmsParser.source UPI→UNKNOWN (was misattributing income)
+    ROBUSTNESS: ParserRegistry canParse exceptions caught (broken parser was crashing receiver);
+      Timber.e stack traces added throughout; SmsReceiver body truncated to 2000 chars
+      (WorkManager 10KB Data limit guard)
+    TESTS: FallbackSmsParserTest source assertion updated UPI→UNKNOWN
 [2026-03-28 10:30] [DEVELOPER] COMPLETED P0-004: CI/CD pipeline (GitHub Actions)
   Branch: main
   Deliverables: .github/workflows/ci.yml — 3 jobs: lint (ktlint), unit-tests, build debug APK

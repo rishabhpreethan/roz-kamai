@@ -1,62 +1,65 @@
 package com.viis.rozkamai.domain.event
 
-import com.squareup.moshi.JsonClass
-
 /**
  * All domain events in the VIIS system.
  * Events are immutable facts — they are never modified after creation.
  * They are the source of truth from which all read models are derived.
+ *
+ * Privacy rules enforced across all event types:
+ *   - No raw SMS body stored anywhere (use bodyLength for diagnostics)
+ *   - Sender IDs masked to first 4 chars + "***"
+ *   - UPI handles stored as SHA-256 hashes only (never raw)
+ *   - Customer display names never stored (use customerId for correlation)
  */
 sealed class DomainEvent {
 
     // ─── Source Events ────────────────────────────────────────────────────────
 
     data class SmsReceived(
-        val rawBody: String,
-        val senderId: String,
-        val receivedAt: Long
+        val senderMasked: String, // first 4 chars + "***"
+        val bodyLength: Int,      // for diagnostics only — never the body itself
+        val receivedAt: Long,
     ) : DomainEvent()
 
     // ─── Transaction Events ───────────────────────────────────────────────────
 
     data class TransactionDetected(
         val amount: Double,
-        val senderName: String?,
-        val upiHandle: String?,
+        val type: String,             // TransactionType.name
         val source: PaymentSource,
+        val upiHandleHash: String?,   // SHA-256 of UPI handle, null if unavailable
         val referenceId: String?,
         val receivedAt: Long,
-        val smsEventId: String
+        val smsEventId: String,
     ) : DomainEvent()
 
     data class TransactionFailed(
         val amount: Double?,
-        val reason: String,
+        val senderMasked: String,
         val receivedAt: Long,
-        val smsEventId: String
     ) : DomainEvent()
 
     data class DuplicateDetected(
-        val originalEventId: String,
-        val duplicateSmsBody: String,
-        val receivedAt: Long
+        val amount: Double,
+        val type: String,
+        val source: PaymentSource,
+        val receivedAt: Long,
     ) : DomainEvent()
 
     data class ParseFailed(
-        val rawBody: String,
-        val senderId: String,
+        val senderMasked: String, // first 4 chars + "***"
+        val bodyLength: Int,
         val reason: String,
-        val receivedAt: Long
+        val receivedAt: Long,
     ) : DomainEvent()
 
     // ─── Customer Events ──────────────────────────────────────────────────────
 
     data class CustomerIdentified(
-        val customerId: String,
-        val displayName: String?,
-        val upiHandle: String?,
+        val customerId: String,      // opaque ID derived from upiHandleHash
+        val upiHandleHash: String?,  // SHA-256 — never raw handle
         val isNew: Boolean,
-        val transactionEventId: String
+        val transactionEventId: String,
     ) : DomainEvent()
 
     // ─── Insight Events ───────────────────────────────────────────────────────

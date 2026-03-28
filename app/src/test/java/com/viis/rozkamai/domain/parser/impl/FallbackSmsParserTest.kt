@@ -18,7 +18,7 @@ class FallbackSmsParserTest {
 
     @Test fun `canParse always true`() = assertTrue(parser.canParse("ANY", "any body"))
     @Test fun `priority is 100`() = assertEquals(100, parser.priority)
-    @Test fun `source is UPI`() = assertEquals(PaymentSource.UPI, parser.source)
+    @Test fun `source is UNKNOWN`() = assertEquals(PaymentSource.UNKNOWN, parser.source)
 
     @Test fun `parse credit keyword`() {
         val result = parser.parse("UNKNWN", "Rs 250 credited to your account", receivedAt)

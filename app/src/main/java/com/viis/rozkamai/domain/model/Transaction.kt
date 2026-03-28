@@ -6,12 +6,14 @@ data class Transaction(
     val id: String,
     val eventId: String,
     val amount: Double,
-    val timestamp: Long,
-    val senderName: String?,
-    val upiHandle: String?,
+    val type: String, // TransactionType.name
     val source: PaymentSource,
+    val timestamp: Long,
+    val dateBucket: String, // "YYYY-MM-DD"
+    val rawSenderMasked: String, // first 4 chars + "***"
+    val upiHandleHash: String?,  // SHA-256 — never raw handle
     val referenceId: String?,
-    val status: TransactionStatus
+    val status: TransactionStatus,
 )
 
 enum class TransactionStatus {

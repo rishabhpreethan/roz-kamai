@@ -15,7 +15,7 @@ import javax.inject.Singleton
 @Singleton
 class FallbackSmsParser @Inject constructor() : SmsParser {
 
-    override val source = PaymentSource.UPI
+    override val source = PaymentSource.UNKNOWN
     override val priority = 100 // lowest priority — runs last
 
     // Generic amount pattern: Rs/INR followed by a number

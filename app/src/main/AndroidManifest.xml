@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- SMS permission — core to app functionality -->
+    <!-- SMS permission — core to app functionality. READ_SMS intentionally omitted: we
+         receive SMS via broadcast (RECEIVE_SMS) and never read the inbox. -->
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
-    <uses-permission android:name="android.permission.READ_SMS" />
 
     <!-- Notifications -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -40,10 +40,11 @@
             </intent-filter>
         </receiver>
 
-        <!-- Boot completed receiver -->
+        <!-- Boot completed receiver. exported=false: BOOT_COMPLETED is system-sent;
+             no third-party app should be able to trigger this receiver. -->
         <receiver
             android:name=".infrastructure.sms.BootReceiver"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
