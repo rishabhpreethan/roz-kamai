@@ -218,6 +218,104 @@ class InsightCalculatorTest : BaseUnitTest() {
         assertEquals("0", calculator.getWeekday("2024-06-16"))
     }
 
+    // ─── computeWeeklyTrend ───────────────────────────────────────────────────
+
+    @Test
+    fun `computeWeeklyTrend returns null when fewer than 14 days of history`() = runTest {
+        coEvery { dailySummaryDao.getRecentSummaries(any()) } returns listOf(
+            makeSummary("2024-06-15", 1000.0),
+            makeSummary("2024-06-14", 900.0),
+        )
+        assertNull(calculator.computeWeeklyTrend(testDate))
+    }
+
+    @Test
+    fun `computeWeeklyTrend computes this week and last week income`() = runTest {
+        // 14 days: most recent 7 = 700*7=4900, older 7 = 500*7=3500
+        coEvery { dailySummaryDao.getRecentSummaries(any()) } returns (0..13).map { i ->
+            makeSummary("2024-06-${15 - i}", if (i < 7) 700.0 else 500.0)
+        }
+        val trend = calculator.computeWeeklyTrend(testDate)
+        assertNotNull(trend)
+        assertEquals(4900.0, trend!!.thisWeekIncome, 0.001)
+        assertEquals(3500.0, trend.lastWeekIncome, 0.001)
+    }
+
+    @Test
+    fun `computeWeeklyTrend computes positive changePercent correctly`() = runTest {
+        // this week = 1200, last week = 1000 → +20%
+        coEvery { dailySummaryDao.getRecentSummaries(any()) } returns listOf(
+            makeSummary("2024-06-15", 200.0),
+            makeSummary("2024-06-14", 200.0),
+            makeSummary("2024-06-13", 200.0),
+            makeSummary("2024-06-12", 200.0),
+            makeSummary("2024-06-11", 200.0),
+            makeSummary("2024-06-10", 100.0),
+            makeSummary("2024-06-09", 100.0),
+            makeSummary("2024-06-08", 200.0),
+            makeSummary("2024-06-07", 200.0),
+            makeSummary("2024-06-06", 200.0),
+            makeSummary("2024-06-05", 100.0),
+            makeSummary("2024-06-04", 100.0),
+            makeSummary("2024-06-03", 100.0),
+            makeSummary("2024-06-02", 100.0),
+        )
+        val trend = calculator.computeWeeklyTrend(testDate)!!
+        assertEquals(1200.0, trend.thisWeekIncome, 0.001)
+        assertEquals(1000.0, trend.lastWeekIncome, 0.001)
+        assertEquals(20.0, trend.changePercent!!, 0.001)
+    }
+
+    @Test
+    fun `computeWeeklyTrend changePercent is null when last week income is zero`() = runTest {
+        coEvery { dailySummaryDao.getRecentSummaries(any()) } returns (0..13).map { i ->
+            makeSummary("2024-06-${15 - i}", if (i < 7) 500.0 else 0.0)
+        }
+        val trend = calculator.computeWeeklyTrend(testDate)!!
+        assertNull(trend.changePercent)
+    }
+
+    // ─── computeBestAndWorstDayOfWeek ─────────────────────────────────────────
+
+    @Test
+    fun `computeBestAndWorstDayOfWeek returns null when fewer than 14 days`() = runTest {
+        coEvery { dailySummaryDao.getRecentSummaries(any()) } returns listOf(
+            makeSummary("2024-06-15", 1000.0),
+        )
+        assertNull(calculator.computeBestAndWorstDayOfWeek())
+    }
+
+    @Test
+    fun `computeBestAndWorstDayOfWeek identifies correct best and worst days`() = runTest {
+        // 2024-06-10 (Monday=2) → always 2000, 2024-06-12 (Wednesday=4) → always 100
+        val summaries = buildList {
+            for (week in 0..3) {
+                add(makeSummary("2024-0${6 - week}-10", 2000.0))  // Monday — best
+                add(makeSummary("2024-0${6 - week}-11", 1000.0))  // Tuesday
+                add(makeSummary("2024-0${6 - week}-12", 100.0))   // Wednesday — worst
+                add(makeSummary("2024-0${6 - week}-13", 800.0))   // Thursday
+                add(makeSummary("2024-0${6 - week}-14", 900.0))   // Saturday
+            }
+        }
+        coEvery { dailySummaryDao.getRecentSummaries(any()) } returns summaries
+
+        val result = calculator.computeBestAndWorstDayOfWeek()
+        assertNotNull(result)
+        assertEquals(java.util.Calendar.MONDAY, result!!.bestDayOfWeek)
+        assertEquals(java.util.Calendar.WEDNESDAY, result.worstDayOfWeek)
+        assertEquals(2000.0, result.bestAvgIncome, 0.001)
+        assertEquals(100.0, result.worstAvgIncome, 0.001)
+    }
+
+    @Test
+    fun `computeBestAndWorstDayOfWeek returns null when fewer than 5 distinct weekdays`() = runTest {
+        // Only Monday and Tuesday data over many weeks — not enough diversity
+        coEvery { dailySummaryDao.getRecentSummaries(any()) } returns (0..20).map { i ->
+            makeSummary("2024-06-${10 + (i % 2)}", 1000.0)
+        }
+        assertNull(calculator.computeBestAndWorstDayOfWeek())
+    }
+
     // ─── Helpers ──────────────────────────────────────────────────────────────
 
     private fun makeSummary(date: String, income: Double) = DailySummaryEntity(

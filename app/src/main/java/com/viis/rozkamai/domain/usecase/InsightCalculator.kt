@@ -22,6 +22,8 @@ import javax.inject.Singleton
  *   P2-013  Peak hour identification (via HourlyStatsDao)
  *   P2-015  First and last sale time (provided from AggregationEngine)
  *   P2-018  Payment method split (UPI vs bank, computed per-call from provided inputs)
+ *   P2-016  Weekly trend analysis (last 7 days vs prior 7 days)
+ *   P2-017  Best and worst day of week by average income
  *   P2-019  Consistency score (days with income > 0 / last 7 days)
  */
 @Singleton
@@ -105,6 +107,62 @@ class InsightCalculator @Inject constructor(
         return recent.count { it.totalIncome > 0 }.toDouble() / 7.0
     }
 
+    // ─── P2-016: Weekly trend ─────────────────────────────────────────────────
+
+    /**
+     * Compares total income for the last 7 days vs the prior 7 days (rolling, not calendar weeks).
+     * Returns null if fewer than 14 days of history exist (need both periods).
+     * [currentDate] is the anchor date; it is included in "this week".
+     */
+    suspend fun computeWeeklyTrend(currentDate: String): WeeklyTrend? {
+        val recent = dailySummaryDao.getRecentSummaries(limit = 14)
+            .filter { it.date <= currentDate }
+        if (recent.size < 14) return null
+        val thisWeekIncome = recent.take(7).sumOf { it.totalIncome }
+        val lastWeekIncome = recent.drop(7).take(7).sumOf { it.totalIncome }
+        val changePercent = if (lastWeekIncome > 0) {
+            (thisWeekIncome - lastWeekIncome) / lastWeekIncome * 100.0
+        } else {
+            null  // can't compute percentage change from a zero baseline
+        }
+        return WeeklyTrend(
+            thisWeekIncome = thisWeekIncome,
+            lastWeekIncome = lastWeekIncome,
+            changePercent = changePercent,
+        )
+    }
+
+    // ─── P2-017: Best and worst day of week ───────────────────────────────────
+
+    /**
+     * Computes average income per day of week over the last 90 days.
+     * Returns null if fewer than 14 days of history exist.
+     * [BestWorstDay.bestDayOfWeek] and [BestWorstDay.worstDayOfWeek] use
+     * Calendar.DAY_OF_WEEK values (1=Sunday … 7=Saturday).
+     */
+    suspend fun computeBestAndWorstDayOfWeek(): BestWorstDay? {
+        val summaries = dailySummaryDao.getRecentSummaries(limit = 90)
+        if (summaries.size < 14) return null
+
+        val avgByDow = summaries
+            .groupBy { getDayOfWeekInt(it.date) }
+            .filterKeys { it != null }
+            .mapKeys { it.key!! }
+            .mapValues { (_, entries) -> entries.map { it.totalIncome }.average() }
+
+        if (avgByDow.size < 5) return null  // need at least 5 distinct weekdays represented
+
+        val best = avgByDow.maxByOrNull { it.value } ?: return null
+        val worst = avgByDow.minByOrNull { it.value } ?: return null
+
+        return BestWorstDay(
+            bestDayOfWeek = best.key,
+            worstDayOfWeek = worst.key,
+            bestAvgIncome = best.value,
+            worstAvgIncome = worst.value,
+        )
+    }
+
     // ─── Helpers ──────────────────────────────────────────────────────────────
 
     /**
@@ -124,4 +182,34 @@ class InsightCalculator @Inject constructor(
         cal.add(Calendar.DAY_OF_MONTH, -1)
         dateFmt.format(cal.time)
     }.getOrNull()
+
+    /** Returns Calendar.DAY_OF_WEEK (1=Sunday … 7=Saturday) for a date string. */
+    private fun getDayOfWeekInt(date: String): Int? = runCatching {
+        val cal = Calendar.getInstance()
+        cal.time = dateFmt.parse(date)!!
+        cal.get(Calendar.DAY_OF_WEEK)
+    }.getOrNull()
 }
+
+// ─── Result types ─────────────────────────────────────────────────────────────
+
+/**
+ * Result of [InsightCalculator.computeWeeklyTrend].
+ * [changePercent] is null when [lastWeekIncome] is zero (no percentage basis).
+ */
+data class WeeklyTrend(
+    val thisWeekIncome: Double,
+    val lastWeekIncome: Double,
+    val changePercent: Double?,
+)
+
+/**
+ * Result of [InsightCalculator.computeBestAndWorstDayOfWeek].
+ * Day-of-week values use Calendar.DAY_OF_WEEK constants (1=Sunday … 7=Saturday).
+ */
+data class BestWorstDay(
+    val bestDayOfWeek: Int,
+    val worstDayOfWeek: Int,
+    val bestAvgIncome: Double,
+    val worstAvgIncome: Double,
+)

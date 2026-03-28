@@ -98,8 +98,8 @@
 | P2-013 | Peak hour identification | Developer | Dev Complete | P1 | P2-003 |
 | P2-014 | Idle time detection | Developer | Dev Complete | P1 | P1-018 |
 | P2-015 | First & last sale time | Developer | Dev Complete | P0 | P1-018 |
-| P2-016 | Weekly trend analysis (7d vs 7d) | Developer | Not Started | P1 | P2-002 |
-| P2-017 | Best/worst day of week | Developer | Not Started | P2 | P2-002 |
+| P2-016 | Weekly trend analysis (7d vs 7d) | Developer | Dev Complete | P1 | P2-002 |
+| P2-017 | Best/worst day of week | Developer | Dev Complete | P2 | P2-002 |
 | P2-018 | Payment method split (UPI vs bank) | Developer | Dev Complete | P2 | P1-018 |
 | P2-019 | Consistency score computation | Developer | Dev Complete | P1 | P2-005, P2-003 |
 | P2-020 | Main dashboard UI (Compose) — income card, comparison, score | Developer | Not Started | P0 | P2-002, P2-004 |
@@ -276,6 +276,14 @@
       Timber.e stack traces added throughout; SmsReceiver body truncated to 2000 chars
       (WorkManager 10KB Data limit guard)
     TESTS: FallbackSmsParserTest source assertion updated UPI→UNKNOWN
+[2026-03-28 20:30] [DEVELOPER+QA] COMPLETED P2-016–P2-017: Weekly trend analysis + best/worst day of week
+  Branch: feature/P2-016-017-weekly-trends
+  Deliverables:
+    - InsightCalculator.computeWeeklyTrend: last 7 days vs prior 7 days; WeeklyTrend result type;
+      changePercent null when baseline=0; requires 14+ days of history
+    - InsightCalculator.computeBestAndWorstDayOfWeek: avg income per Calendar.DAY_OF_WEEK over
+      last 90 days; BestWorstDay result type; requires 14+ days + 5+ distinct weekdays
+    - InsightCalculatorTest: +7 tests covering both functions
 [2026-03-28 19:30] [DEVELOPER+QA] COMPLETED P2-001–P2-009, P2-013–P2-015, P2-018–P2-019, P2-026–P2-027: Aggregation engine + insights + idle detection
   Branch: feature/P2-001-019-aggregation-insights
   Deliverables:
