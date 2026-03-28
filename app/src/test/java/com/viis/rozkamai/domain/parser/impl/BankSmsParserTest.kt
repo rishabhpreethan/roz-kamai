@@ -106,8 +106,55 @@ class BankSmsParserTest {
 
     @Test fun `Axis priority is 70`() = assertEquals(70, axis.priority)
 
+    @Test fun `HDFC debit pattern`() {
+        val result = hdfc.parse("HDFCBK", "Rs 200 debited from your HDFC Bank A/c XX1234 via UPI on 01-01-25.", receivedAt)
+        assertNotNull(result)
+        assertEquals(200.0, result!!.amount, 0.001)
+        assertEquals(TransactionType.DEBIT, result.type)
+    }
+
+    // ── ICICI ────────────────────────────────────────────────────────────────
+
+    @Test fun `ICICI canParse true for ICICI sender`() = assertEquals(true, icici.canParse("ICICI", ""))
+
+    @Test fun `ICICI parse debit`() {
+        val result = icici.parse("ICICIB", "Rs 350 has been debited from your A/c XXXX via UPI on 01-Jan-25.", receivedAt)
+        assertNotNull(result)
+        assertEquals(350.0, result!!.amount, 0.001)
+        assertEquals(TransactionType.DEBIT, result.type)
+    }
+
+    @Test fun `ICICI failed SMS returns null`() = assertNull(icici.parse("ICICIB", "Transaction failed. Rs 450 could not be processed.", receivedAt))
+
+    // ── Axis ─────────────────────────────────────────────────────────────────
+
+    @Test fun `Axis canParse true for AXIS sender`() = assertEquals(true, axis.canParse("AXIS", ""))
+
+    @Test fun `Axis parse debit`() {
+        val result = axis.parse("AXISBK", "Rs.400.00 debited from your A/c XXXX on 01Jan25 via UPI. Avl Bal: Rs.5200.00", receivedAt)
+        assertNotNull(result)
+        assertEquals(400.0, result!!.amount, 0.001)
+        assertEquals(TransactionType.DEBIT, result.type)
+    }
+
+    @Test fun `Axis failed SMS returns null`() = assertNull(axis.parse("AXISBK", "Transaction declined. Rs 600 could not be processed.", receivedAt))
+
     // ── shared: failed SMS returns null ───────────────────────────────────────
 
     @Test fun `SBI failed SMS returns null`() = assertNull(sbi.parse("SBI", "Transaction failed. Rs 100 could not be processed.", receivedAt))
     @Test fun `HDFC failed SMS returns null`() = assertNull(hdfc.parse("HDFCBK", "Transaction failed Rs 300", receivedAt))
+
+    // ── shared: amounts with commas ───────────────────────────────────────────
+
+    @Test fun `SBI comma-formatted amount`() {
+        val result = sbi.parse("SBI", "Your A/c XXXX is credited by Rs 1,500 on 01/01/25.", receivedAt)
+        assertNotNull(result)
+        assertEquals(1500.0, result!!.amount, 0.001)
+    }
+
+    @Test fun `HDFC comma-formatted amount`() {
+        val result = hdfc.parse("HDFCBK", "Rs 2,300 credited to HDFC Bank A/c XX1234 via UPI.", receivedAt)
+        assertNotNull(result)
+        assertEquals(2300.0, result!!.amount, 0.001)
+    }
 }

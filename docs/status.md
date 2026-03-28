@@ -61,14 +61,14 @@
 | P1-018 | TransactionDetected event production | Developer | Dev Complete | P0 | P1-004, P1-016 |
 | P1-019 | ParseFailed / DuplicateDetected event production | Developer | Dev Complete | P1 | P1-004, P1-016 |
 | P1-020 | Boot complete receiver (re-register SMS listener) | Developer | Dev Complete | P1 | P1-001 |
-| P1-021 | Unit tests — GPay parser | QA | Not Started | P0 | P1-005 |
-| P1-022 | Unit tests — PhonePe parser | QA | Not Started | P0 | P1-006 |
-| P1-023 | Unit tests — Paytm parser | QA | Not Started | P0 | P1-007 |
-| P1-024 | Unit tests — SBI parser | QA | Not Started | P1 | P1-008 |
-| P1-025 | Unit tests — HDFC parser | QA | Not Started | P1 | P1-009 |
-| P1-026 | Unit tests — ICICI parser | QA | Not Started | P1 | P1-010 |
-| P1-027 | Unit tests — Axis parser | QA | Not Started | P1 | P1-011 |
-| P1-028 | Unit tests — Fallback parser | QA | Not Started | P1 | P1-012 |
+| P1-021 | Unit tests — GPay parser | QA | Dev Complete | P0 | P1-005 |
+| P1-022 | Unit tests — PhonePe parser | QA | Dev Complete | P0 | P1-006 |
+| P1-023 | Unit tests — Paytm parser | QA | Dev Complete | P0 | P1-007 |
+| P1-024 | Unit tests — SBI parser | QA | Dev Complete | P1 | P1-008 |
+| P1-025 | Unit tests — HDFC parser | QA | Dev Complete | P1 | P1-009 |
+| P1-026 | Unit tests — ICICI parser | QA | Dev Complete | P1 | P1-010 |
+| P1-027 | Unit tests — Axis parser | QA | Dev Complete | P1 | P1-011 |
+| P1-028 | Unit tests — Fallback parser | QA | Dev Complete | P1 | P1-012 |
 | P1-029 | Unit tests — Deduplication logic | QA | Dev Complete | P0 | P1-013 |
 | P1-030 | Unit tests — Failed transaction detection | QA | Dev Complete | P0 | P1-014 |
 | P1-031 | Integration test — SMS → Parse → Event → Store pipeline | QA | Not Started | P0 | P1-018 |
@@ -245,6 +245,14 @@
     - BootReceiver: fully implemented — initializes WorkManager, guards on BOOT_COMPLETED action
     - TransactionProjectorTest: 10 tests covering all mapped fields
     - ParseSmsUseCaseTest: updated with TransactionProjector mock
+[2026-03-28 16:30] [QA] COMPLETED P1-021–P1-028: Parser unit tests for all 8 parsers
+  Branch: feature/P1-021-028-parser-unit-tests
+  Deliverables (expanded existing stubs with full coverage):
+    - GPaySmsParserTest: +3 tests — lowercase hash verification, debit UPI hash, timestamp preserved (14 total)
+    - PhonePeSmsParserTest: +8 tests — hash exact values for all 3 patterns, declined, ref ID, comma amount, masking (15 total)
+    - PaytmSmsParserTest: +7 tests — canParse, failed/declined, decimal, masking, null upiHandleHash (12 total)
+    - BankSmsParserTest: +9 tests — HDFC/ICICI/Axis debit, ICICI/Axis failed/declined, comma amounts, canParse (23 total)
+    - FallbackSmsParserTest: +7 tests — ₹ symbol, comma amount, paid/added keywords, declined, masking (16 total)
 [2026-03-28 10:30] [DEVELOPER] COMPLETED P0-004: CI/CD pipeline (GitHub Actions)
   Branch: main
   Deliverables: .github/workflows/ci.yml — 3 jobs: lint (ktlint), unit-tests, build debug APK

@@ -2,6 +2,7 @@ package com.viis.rozkamai.domain.parser.impl
 
 import com.viis.rozkamai.domain.event.PaymentSource
 import com.viis.rozkamai.domain.model.TransactionType
+import com.viis.rozkamai.util.HashUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -99,5 +100,26 @@ class GPaySmsParserTest {
         val body = "Rs. 100 credited to your account by user@okaxis via GPay. Ref: TEST001"
         val result = parser.parse("GPAY", body, receivedAt)
         assertEquals("GPAY***", result?.rawSenderMasked)
+    }
+
+    @Test
+    fun `credit UPI hash is SHA-256 of lowercase handle`() {
+        val body = "Rs. 500 credited to your account by USER@OkAxis via GPay."
+        val result = parser.parse("GPAY", body, receivedAt)!!
+        assertEquals(HashUtils.sha256("user@okaxis"), result.upiHandleHash)
+    }
+
+    @Test
+    fun `debit SMS hashes UPI handle`() {
+        val body = "Rs. 100 debited from your account to merchant@oksbi via GPay."
+        val result = parser.parse("GPAY", body, receivedAt)!!
+        assertEquals(HashUtils.sha256("merchant@oksbi"), result.upiHandleHash)
+    }
+
+    @Test
+    fun `timestamp is preserved`() {
+        val body = "Rs. 500 credited to your account by user@okaxis via GPay."
+        val result = parser.parse("GPAY", body, 9876543L)!!
+        assertEquals(9876543L, result.timestamp)
     }
 }

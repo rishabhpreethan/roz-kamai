@@ -47,4 +47,35 @@ class FallbackSmsParserTest {
     @Test fun `non-financial SMS (OTP) returns null`() {
         assertNull(parser.parse("BANK", "Your OTP is 123456. Do not share.", receivedAt))
     }
+
+    @Test fun `rupee symbol is recognised`() {
+        val result = parser.parse("UNKNWN", "₹ 750 credited to your account", receivedAt)
+        assertNotNull(result)
+        assertEquals(750.0, result!!.amount, 0.001)
+    }
+
+    @Test fun `comma-formatted amount is parsed correctly`() {
+        val result = parser.parse("UNKNWN", "INR 1,200 credited to your account", receivedAt)
+        assertNotNull(result)
+        assertEquals(1200.0, result!!.amount, 0.001)
+    }
+
+    @Test fun `paid keyword maps to DEBIT`() {
+        val result = parser.parse("UNKNWN", "Rs 300 paid to merchant", receivedAt)
+        assertNotNull(result)
+        assertEquals(TransactionType.DEBIT, result!!.type)
+    }
+
+    @Test fun `added keyword maps to CREDIT`() {
+        val result = parser.parse("UNKNWN", "Rs 100 added to your wallet", receivedAt)
+        assertNotNull(result)
+        assertEquals(TransactionType.CREDIT, result!!.type)
+    }
+
+    @Test fun `declined keyword suppresses parse`() = assertNull(parser.parse("UNKNWN", "Rs 200 declined", receivedAt))
+
+    @Test fun `rawSenderMasked has correct format`() {
+        val result = parser.parse("UNKNWN", "Rs 100 credited to account", receivedAt)!!
+        assertEquals("UNKN***", result.rawSenderMasked)
+    }
 }
