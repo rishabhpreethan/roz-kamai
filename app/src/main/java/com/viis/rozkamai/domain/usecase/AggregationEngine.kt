@@ -1,5 +1,6 @@
 package com.viis.rozkamai.domain.usecase
 
+import com.viis.rozkamai.data.local.dao.CustomerProfileDao
 import com.viis.rozkamai.data.local.dao.DailySummaryDao
 import com.viis.rozkamai.data.local.dao.HourlyStatsDao
 import com.viis.rozkamai.data.local.dao.TransactionDao
@@ -37,6 +38,7 @@ class AggregationEngine @Inject constructor(
     private val transactionDao: TransactionDao,
     private val dailySummaryDao: DailySummaryDao,
     private val hourlyStatsDao: HourlyStatsDao,
+    private val customerProfileDao: CustomerProfileDao,
     private val insightCalculator: InsightCalculator,
     private val eventRepository: EventRepository,
 ) {
@@ -78,6 +80,10 @@ class AggregationEngine @Inject constructor(
         val runRate = insightCalculator.computeRunRate(totalIncome, transaction.timestamp)
         val consistencyScore = insightCalculator.computeConsistencyScore(date)
 
+        // P2-010, P2-011, P2-012: Customer counts — profiles already updated by CustomerIdentificationService
+        val newCustomers = customerProfileDao.countNewCustomersForDate(date)
+        val returningCustomers = customerProfileDao.countReturningCustomersForDate(date)
+
         val summary = DailySummaryEntity(
             date = date,
             totalIncome = totalIncome,
@@ -91,6 +97,8 @@ class AggregationEngine @Inject constructor(
             consistencyScore = consistencyScore,
             upiAmount = upiAmount,
             bankAmount = bankAmount,
+            newCustomers = newCustomers,
+            returningCustomers = returningCustomers,
         )
         dailySummaryDao.upsert(summary)
 

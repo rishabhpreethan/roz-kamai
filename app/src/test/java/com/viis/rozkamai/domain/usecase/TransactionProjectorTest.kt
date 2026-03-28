@@ -17,6 +17,7 @@ import org.junit.Test
 class TransactionProjectorTest : BaseUnitTest() {
 
     private lateinit var transactionDao: TransactionDao
+    private lateinit var customerIdentificationService: CustomerIdentificationService
     private lateinit var aggregationEngine: AggregationEngine
     private lateinit var projector: TransactionProjector
 
@@ -45,8 +46,9 @@ class TransactionProjectorTest : BaseUnitTest() {
     override fun setUp() {
         super.setUp()
         transactionDao = mockk(relaxed = true)
+        customerIdentificationService = mockk(relaxed = true)
         aggregationEngine = mockk(relaxed = true)
-        projector = TransactionProjector(transactionDao, aggregationEngine)
+        projector = TransactionProjector(transactionDao, customerIdentificationService, aggregationEngine)
     }
 
     @Test
@@ -136,7 +138,7 @@ class TransactionProjectorTest : BaseUnitTest() {
     fun `project generates unique id for each call`() = runTest {
         val ids = mutableListOf<String>()
         val capturingDao = mockk<TransactionDao>(relaxed = true)
-        val capturingProjector = TransactionProjector(capturingDao, mockk(relaxed = true))
+        val capturingProjector = TransactionProjector(capturingDao, mockk(relaxed = true), mockk(relaxed = true))
 
         coVerify(exactly = 0) { capturingDao.insert(any()) }
 
