@@ -24,4 +24,7 @@ interface TransactionDao {
 
     @Query("SELECT COUNT(*) FROM transactions WHERE date_bucket = :date AND type = 'CREDIT'")
     suspend fun getTransactionCountForDate(date: String): Int
+
+    @Query("SELECT MAX(timestamp) FROM transactions WHERE date_bucket = :date AND type = 'CREDIT'")
+    suspend fun getLastTransactionTime(date: String): Long?
 }

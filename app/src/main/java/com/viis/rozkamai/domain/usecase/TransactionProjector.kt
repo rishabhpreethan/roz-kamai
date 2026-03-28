@@ -11,17 +11,21 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Projects a ParsedTransaction into the transactions read model table.
- * Called immediately after a TransactionDetected event is appended to the event store.
- * The read model can be fully rebuilt from the event store if ever needed.
+ * Projects a ParsedTransaction into the transactions read model table,
+ * then triggers AggregationEngine to recompute all daily/hourly summaries.
+ *
+ * The read model (transactions table) can be fully rebuilt from the event store.
+ * The aggregation projections (daily_summaries, hourly_stats) follow the same rule.
  */
 @Singleton
 class TransactionProjector @Inject constructor(
     private val transactionDao: TransactionDao,
+    private val aggregationEngine: AggregationEngine,
 ) {
     private val dateBucketFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
     suspend fun project(transaction: ParsedTransaction, eventId: String) {
+        val dateBucket = dateBucketFormat.format(Date(transaction.timestamp))
         val entity = TransactionEntity(
             id = UUID.randomUUID().toString(),
             eventId = eventId,
@@ -29,12 +33,13 @@ class TransactionProjector @Inject constructor(
             type = transaction.type.name,
             source = transaction.source.name,
             timestamp = transaction.timestamp,
-            dateBucket = dateBucketFormat.format(Date(transaction.timestamp)),
+            dateBucket = dateBucket,
             rawSenderMasked = transaction.rawSenderMasked,
             upiHandleHash = transaction.upiHandleHash,
             referenceId = transaction.referenceId,
             status = "SUCCESS",
         )
         transactionDao.insert(entity)
+        aggregationEngine.aggregate(transaction, dateBucket)
     }
 }

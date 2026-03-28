@@ -16,6 +16,12 @@ interface HourlyStatsDao {
     @Query("SELECT * FROM hourly_stats WHERE date = :date ORDER BY hour_block ASC")
     fun observeHourlyStats(date: String): Flow<List<HourlyStatsEntity>>
 
+    @Query("SELECT * FROM hourly_stats WHERE date = :date ORDER BY hour_block ASC")
+    suspend fun getHourlyStatsForDate(date: String): List<HourlyStatsEntity>
+
+    @Query("SELECT * FROM hourly_stats WHERE date = :date AND hour_block = :hour LIMIT 1")
+    suspend fun getByDateAndHour(date: String, hour: Int): HourlyStatsEntity?
+
     @Query("SELECT * FROM hourly_stats WHERE date = :date ORDER BY total_amount DESC LIMIT 1")
     suspend fun getPeakHourForDate(date: String): HourlyStatsEntity?
 }

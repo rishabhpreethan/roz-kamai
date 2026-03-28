@@ -17,6 +17,7 @@ import org.junit.Test
 class TransactionProjectorTest : BaseUnitTest() {
 
     private lateinit var transactionDao: TransactionDao
+    private lateinit var aggregationEngine: AggregationEngine
     private lateinit var projector: TransactionProjector
 
     // 2024-06-15 12:00:00 UTC in millis
@@ -44,7 +45,8 @@ class TransactionProjectorTest : BaseUnitTest() {
     override fun setUp() {
         super.setUp()
         transactionDao = mockk(relaxed = true)
-        projector = TransactionProjector(transactionDao)
+        aggregationEngine = mockk(relaxed = true)
+        projector = TransactionProjector(transactionDao, aggregationEngine)
     }
 
     @Test
@@ -134,7 +136,7 @@ class TransactionProjectorTest : BaseUnitTest() {
     fun `project generates unique id for each call`() = runTest {
         val ids = mutableListOf<String>()
         val capturingDao = mockk<TransactionDao>(relaxed = true)
-        val capturingProjector = TransactionProjector(capturingDao)
+        val capturingProjector = TransactionProjector(capturingDao, mockk(relaxed = true))
 
         coVerify(exactly = 0) { capturingDao.insert(any()) }
 
