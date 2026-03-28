@@ -102,18 +102,18 @@
 | P2-017 | Best/worst day of week | Developer | Dev Complete | P2 | P2-002 |
 | P2-018 | Payment method split (UPI vs bank) | Developer | Dev Complete | P2 | P1-018 |
 | P2-019 | Consistency score computation | Developer | Dev Complete | P1 | P2-005, P2-003 |
-| P2-020 | Main dashboard UI (Compose) — income card, comparison, score | Developer | Not Started | P0 | P2-002, P2-004 |
-| P2-021 | Hourly breakdown UI | Developer | Not Started | P1 | P2-003 |
-| P2-022 | Customer insights UI | Developer | Not Started | P1 | P2-011, P2-012 |
-| P2-023 | Weekly trends UI | Developer | Not Started | P2 | P2-016 |
-| P2-024 | Expected vs actual UI widget | Developer | Not Started | P1 | P2-005 |
-| P2-025 | Empty state UI (no transactions yet) | Developer | Not Started | P0 | P2-020 |
+| P2-020 | Main dashboard UI (Compose) — income card, comparison, score | Developer | Dev Complete | P0 | P2-002, P2-004 |
+| P2-021 | Hourly breakdown UI | Developer | Dev Complete | P1 | P2-003 |
+| P2-022 | Customer insights UI | Developer | Dev Complete | P1 | P2-011, P2-012 |
+| P2-023 | Weekly trends UI | Developer | Dev Complete | P2 | P2-016 |
+| P2-024 | Expected vs actual UI widget | Developer | Dev Complete | P1 | P2-005 |
+| P2-025 | Empty state UI (no transactions yet) | Developer | Dev Complete | P0 | P2-020 |
 | P2-026 | Unit tests — Aggregation engine | QA | Dev Complete | P0 | P2-001 |
 | P2-027 | Unit tests — All 14 insight calculations | QA | Dev Complete | P0 | P2-002 to P2-019 |
 | P2-028 | Unit tests — Customer clustering | QA | Dev Complete | P1 | P2-010 |
 | P2-029 | UI tests — Dashboard layout and content | QA | Not Started | P1 | P2-020 |
-| P2-030 | Integration test — Event → Aggregation → Projection → UI | QA | Not Started | P0 | P2-020 |
-| P2-031 | Edge case testing — 0 transactions, 1 transaction, first day | QA | Not Started | P0 | P2-027 |
+| P2-030 | Integration test — Event → Aggregation → Projection → UI | QA | Dev Complete | P0 | P2-020 |
+| P2-031 | Edge case testing — 0 transactions, 1 transaction, first day | QA | Dev Complete | P0 | P2-027 |
 | P2-032 | Low-end device testing — Dashboard performance | QA | Not Started | P1 | P2-020 |
 | P2-033 | Code review — Aggregation + Insights | Reviewer | Not Started | P0 | P2-026, P2-030 |
 | P2-034 | Code review — Dashboard UI | Reviewer | Not Started | P1 | P2-029 |
