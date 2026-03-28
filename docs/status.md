@@ -71,8 +71,8 @@
 | P1-028 | Unit tests — Fallback parser | QA | Dev Complete | P1 | P1-012 |
 | P1-029 | Unit tests — Deduplication logic | QA | Dev Complete | P0 | P1-013 |
 | P1-030 | Unit tests — Failed transaction detection | QA | Dev Complete | P0 | P1-014 |
-| P1-031 | Integration test — SMS → Parse → Event → Store pipeline | QA | Not Started | P0 | P1-018 |
-| P1-032 | Parser accuracy validation (against SMS sample dataset) | QA | Not Started | P0 | P1-005 to P1-012, P0-009 |
+| P1-031 | Integration test — SMS → Parse → Event → Store pipeline | QA | Dev Complete | P0 | P1-018 |
+| P1-032 | Parser accuracy validation (against SMS sample dataset) | QA | Dev Complete | P0 | P1-005 to P1-012, P0-009 |
 | P1-033 | Low-end device testing — SMS module | QA | Not Started | P1 | P1-031 |
 | P1-034 | Code review — SMS listener + permission | Reviewer | Not Started | P0 | P1-021, P1-031 |
 | P1-035 | Code review — Parser registry + all parsers | Reviewer | Not Started | P0 | P1-032 |
@@ -253,6 +253,16 @@
     - PaytmSmsParserTest: +7 tests — canParse, failed/declined, decimal, masking, null upiHandleHash (12 total)
     - BankSmsParserTest: +9 tests — HDFC/ICICI/Axis debit, ICICI/Axis failed/declined, comma amounts, canParse (23 total)
     - FallbackSmsParserTest: +7 tests — ₹ symbol, comma amount, paid/added keywords, declined, masking (16 total)
+[2026-03-28 17:30] [QA] COMPLETED P1-031, P1-032: Integration + accuracy tests
+  Branch: feature/P1-031-032-integration-accuracy-tests
+  Deliverables:
+    - SmsPipelineIntegrationTest: 20 tests — full pipeline with real parsers + real registry,
+      mocked persistence only. Covers all 8 sources, failed pre-check, dedup window,
+      ParseFailed event, payload privacy (no raw UPI handle), TransactionProjector wiring.
+    - ParserAccuracyTest: 16 tests — loads every SMS sample file from test/resources,
+      validates correct source/type/amount per dataset. Non-financial and ambiguous samples
+      confirmed null. Duplicate sample confirmed parseable (dedup is use-case concern).
+      Acts as regression guard against regex changes.
 [2026-03-28 10:30] [DEVELOPER] COMPLETED P0-004: CI/CD pipeline (GitHub Actions)
   Branch: main
   Deliverables: .github/workflows/ci.yml — 3 jobs: lint (ktlint), unit-tests, build debug APK
