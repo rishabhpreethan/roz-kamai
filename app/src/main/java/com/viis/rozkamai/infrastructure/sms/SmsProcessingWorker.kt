@@ -4,21 +4,26 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.viis.rozkamai.data.local.entity.EventEntity
+import com.viis.rozkamai.data.repository.EventRepository
 import com.viis.rozkamai.domain.parser.ParseResult
 import com.viis.rozkamai.domain.usecase.ParseSmsUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import timber.log.Timber
+import java.util.UUID
 
 /**
  * Background worker that processes an incoming financial SMS.
- * Delegates to ParseSmsUseCase which handles event production.
- * This worker logs only privacy-safe information (masked sender, result type).
+ * Produces an SMSReceived event (infrastructure audit trail) then delegates
+ * to ParseSmsUseCase for the full parse + event pipeline.
+ * Logs only privacy-safe information (masked sender, result type).
  */
 @HiltWorker
 class SmsProcessingWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
+    private val eventRepository: EventRepository,
     private val parseSmsUseCase: ParseSmsUseCase,
 ) : CoroutineWorker(appContext, workerParams) {
 
@@ -37,6 +42,17 @@ class SmsProcessingWorker @AssistedInject constructor(
         Timber.d("SmsProcessingWorker: processing SMS from $senderMasked")
 
         return try {
+            // Produce SMSReceived event — infrastructure audit trail independent of parse outcome
+            eventRepository.appendEvent(
+                EventEntity(
+                    eventId = UUID.randomUUID().toString(),
+                    eventType = "SMSReceived",
+                    timestamp = receivedAt,
+                    payload = """{"sender_masked":"$senderMasked","body_length":${body.length}}""",
+                    version = 1,
+                ),
+            )
+
             when (val result = parseSmsUseCase.execute(sender, body, receivedAt)) {
                 is ParseResult.Success -> {
                     Timber.d("SmsProcessingWorker: parsed successfully via ${result.parserSource}")

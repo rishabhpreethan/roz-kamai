@@ -13,17 +13,19 @@ import javax.inject.Singleton
 /**
  * Orchestrates the full SMS processing pipeline:
  *   1. Pre-check for failed transaction language → TransactionFailed event
- *   2. Parse via ParserRegistry
+ *   2. Parse via ParserRegistry → ParseFailed event on no match
  *   3. Deduplication check → DuplicateDetected event
- *   4. Append TransactionDetected or ParseFailed event
+ *   4. Append TransactionDetected event + project to transactions read model
  *
- * Single responsibility: this is the only class that writes parse-related events.
+ * Single responsibility: this is the only class that writes parse-related events
+ * and triggers the transaction read-model projection.
  */
 @Singleton
 class ParseSmsUseCase @Inject constructor(
     private val registry: ParserRegistry,
     private val eventRepository: EventRepository,
     private val deduplicationChecker: DeduplicationChecker,
+    private val transactionProjector: TransactionProjector,
 ) {
     suspend fun execute(sender: String, body: String, receivedAt: Long): ParseResult {
         val senderMasked = "${sender.take(4)}***"
@@ -51,16 +53,22 @@ class ParseSmsUseCase @Inject constructor(
             return ParseResult.Duplicate
         }
 
-        // Step 4 — new transaction
-        appendTransactionDetectedEvent(parsed, receivedAt)
+        // Step 4 — new transaction: append event then project to read model
+        val eventId = UUID.randomUUID().toString()
+        appendTransactionDetectedEvent(parsed, receivedAt, eventId)
+        transactionProjector.project(parsed, eventId)
         Timber.d("TransactionDetected: source=${parsed.source}, type=${parsed.type}")
         return ParseResult.Success(transaction = parsed, parserSource = parsed.source)
     }
 
-    private suspend fun appendTransactionDetectedEvent(parsed: ParsedTransaction, receivedAt: Long) {
+    private suspend fun appendTransactionDetectedEvent(
+        parsed: ParsedTransaction,
+        receivedAt: Long,
+        eventId: String,
+    ) {
         eventRepository.appendEvent(
             EventEntity(
-                eventId = UUID.randomUUID().toString(),
+                eventId = eventId,
                 eventType = "TransactionDetected",
                 timestamp = receivedAt,
                 payload = buildTransactionPayload(parsed),
