@@ -92,9 +92,9 @@
 | P2-007 | Slow hour / drop detection | Developer | Dev Complete | P1 | P2-003 |
 | P2-008 | Transaction count insight | Developer | Dev Complete | P0 | P2-001 |
 | P2-009 | Average sale value insight | Developer | Dev Complete | P0 | P2-008 |
-| P2-010 | Customer identification (UPI handle + name clustering) | Developer | Not Started | P0 | P1-018 |
-| P2-011 | Repeat customer detection | Developer | Not Started | P1 | P2-010 |
-| P2-012 | New vs returning classification | Developer | Not Started | P1 | P2-010 |
+| P2-010 | Customer identification (UPI handle + name clustering) | Developer | Dev Complete | P0 | P1-018 |
+| P2-011 | Repeat customer detection | Developer | Dev Complete | P1 | P2-010 |
+| P2-012 | New vs returning classification | Developer | Dev Complete | P1 | P2-010 |
 | P2-013 | Peak hour identification | Developer | Dev Complete | P1 | P2-003 |
 | P2-014 | Idle time detection | Developer | Dev Complete | P1 | P1-018 |
 | P2-015 | First & last sale time | Developer | Dev Complete | P0 | P1-018 |
@@ -110,7 +110,7 @@
 | P2-025 | Empty state UI (no transactions yet) | Developer | Not Started | P0 | P2-020 |
 | P2-026 | Unit tests — Aggregation engine | QA | Dev Complete | P0 | P2-001 |
 | P2-027 | Unit tests — All 14 insight calculations | QA | Dev Complete | P0 | P2-002 to P2-019 |
-| P2-028 | Unit tests — Customer clustering | QA | Not Started | P1 | P2-010 |
+| P2-028 | Unit tests — Customer clustering | QA | Dev Complete | P1 | P2-010 |
 | P2-029 | UI tests — Dashboard layout and content | QA | Not Started | P1 | P2-020 |
 | P2-030 | Integration test — Event → Aggregation → Projection → UI | QA | Not Started | P0 | P2-020 |
 | P2-031 | Edge case testing — 0 transactions, 1 transaction, first day | QA | Not Started | P0 | P2-027 |
@@ -284,6 +284,21 @@
     - InsightCalculator.computeBestAndWorstDayOfWeek: avg income per Calendar.DAY_OF_WEEK over
       last 90 days; BestWorstDay result type; requires 14+ days + 5+ distinct weekdays
     - InsightCalculatorTest: +7 tests covering both functions
+[2026-03-28 20:00] [DEVELOPER+QA] COMPLETED P2-010–P2-012, P2-028: Customer identification, repeat detection, new/returning classification
+  Branch: feature/P2-010-012-customer-identification
+  Deliverables:
+    - CustomerIdentificationService: creates/updates CustomerProfileEntity for CREDIT transactions
+      with upiHandleHash; isRepeatCustomer (count >= 2); isNewCustomer (count == 1);
+      emits CustomerIdentified event with is_new flag and transaction event reference
+    - CustomerProfileEntity: added firstSeenDate + lastSeenDate String columns (timezone-safe
+      vs epoch millis) + indices; bumped DB version to 3
+    - CustomerProfileDao: added countNewCustomersForDate + countReturningCustomersForDate
+    - AggregationEngine: injected CustomerProfileDao; now includes newCustomers +
+      returningCustomers in DailySummaryEntity
+    - TransactionProjector: calls CustomerIdentificationService before AggregationEngine
+      so customer counts are current when DailySummaryEntity is computed
+    - CustomerIdentificationServiceTest: 14 tests covering all identification, event
+      production, and helper function cases
 [2026-03-28 19:30] [DEVELOPER+QA] COMPLETED P2-001–P2-009, P2-013–P2-015, P2-018–P2-019, P2-026–P2-027: Aggregation engine + insights + idle detection
   Branch: feature/P2-001-019-aggregation-insights
   Deliverables:
