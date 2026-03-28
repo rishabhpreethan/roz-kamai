@@ -10,9 +10,17 @@
     <string name="onboarding_how_body">Payment aayega → SMS aayega → Hum gin lenge.\nBas SMS permission do, baaki hum sambhaal lenge.</string>
 
     <!-- Permissions -->
+    <string name="permission_sms_title">SMS access chahiye</string>
+    <string name="permission_sms_body">Hum sirf bank aur UPI messages padhte hain.\nPersonal messages nahi.\nAapka data phone mein hi rehta hai — kuch bhi bahar nahi jaata.</string>
+    <string name="permission_sms_grant_button">Ijazat do</string>
+    <string name="permission_sms_rationale_title">Ek baar aur try karein</string>
+    <string name="permission_sms_rationale_body">SMS permission ke bina hum aapki income track nahi kar sakte.\nKoi personal message nahi padhte — sirf bank aur UPI alerts.</string>
+    <string name="permission_sms_try_again_button">Try again</string>
+    <string name="permission_sms_denied_title">Settings mein jaana hoga</string>
+    <string name="permission_sms_denied_body">Aapne permission permanently deny kar diya.\nSettings mein jaake SMS permission on karein.</string>
     <string name="permission_sms_rationale">Hum sirf bank aur UPI messages padhte hain.\nPersonal messages nahi.\nAapka data phone mein hi rehta hai.</string>
     <string name="permission_sms_denied">SMS permission ke bina app kaam nahi kar payega</string>
-    <string name="permission_settings_button">Settings mein jaayein</string>
+    <string name="permission_settings_button">Settings kholein</string>
 
     <!-- Dashboard -->
     <string name="dashboard_no_transactions">Jaise hi UPI/bank payment aayega, yahan dikhega</string>
