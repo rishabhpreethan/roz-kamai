@@ -124,22 +124,22 @@
 
 | Task ID | Task Name | Agent | Status | Priority | Dependencies |
 |---|---|---|---|---|---|
-| P3-001 | Notification engine (WorkManager scheduling) | Developer | Not Started | P0 | P0-002 |
-| P3-002 | Notification channel setup (3 channels) | Developer | Not Started | P0 | P0-001 |
-| P3-003 | EOD summary notification | Developer | Not Started | P0 | P3-001, P2-002 |
-| P3-004 | Mid-day underperformance alert | Developer | Not Started | P1 | P3-001, P2-005 |
-| P3-005 | Inactivity alert | Developer | Not Started | P1 | P3-001, P2-014 |
-| P3-006 | Hinglish notification templates | Developer | Not Started | P0 | P3-003 |
-| P3-007 | Notification → app deep linking | Developer | Not Started | P1 | P3-003, P2-020 |
-| P3-008 | NotificationSent event production | Developer | Not Started | P0 | P3-003, P1-016 |
-| P3-009 | Boot complete re-scheduling | Developer | Not Started | P1 | P3-001, P1-020 |
-| P3-010 | Unit tests — Notification scheduling | QA | Not Started | P0 | P3-001 |
-| P3-011 | Unit tests — Notification content generation | QA | Not Started | P0 | P3-006 |
-| P3-012 | Integration test — Event → Automation → Notification | QA | Not Started | P0 | P3-003 |
+| P3-001 | Notification engine (WorkManager scheduling) | Developer | Dev Complete | P0 | P0-002 |
+| P3-002 | Notification channel setup (3 channels) | Developer | Dev Complete | P0 | P0-001 |
+| P3-003 | EOD summary notification | Developer | Dev Complete | P0 | P3-001, P2-002 |
+| P3-004 | Mid-day underperformance alert | Developer | Dev Complete | P1 | P3-001, P2-005 |
+| P3-005 | Inactivity alert | Developer | Dev Complete | P1 | P3-001, P2-014 |
+| P3-006 | Hinglish notification templates | Developer | Dev Complete | P0 | P3-003 |
+| P3-007 | Notification → app deep linking | Developer | Dev Complete | P1 | P3-003, P2-020 |
+| P3-008 | NotificationSent event production | Developer | Dev Complete | P0 | P3-003, P1-016 |
+| P3-009 | Boot complete re-scheduling | Developer | Dev Complete | P1 | P3-001, P1-020 |
+| P3-010 | Unit tests — Notification scheduling | QA | Dev Complete | P0 | P3-001 |
+| P3-011 | Unit tests — Notification content generation | QA | Dev Complete | P0 | P3-006 |
+| P3-012 | Integration test — Event → Automation → Notification | QA | Dev Complete | P0 | P3-003 |
 | P3-013 | Test — Notifications after device restart | QA | Not Started | P1 | P3-009 |
 | P3-014 | Test — Battery impact of notification scheduling | QA | Not Started | P1 | P3-001 |
-| P3-015 | Code review — Notification engine | Reviewer | Not Started | P0 | P3-010, P3-012 |
-| P3-016 | Alignment check — Module 7 (Notifications) | Reviewer | Not Started | P0 | P3-015 |
+| P3-015 | Code review — Notification engine | Reviewer | Dev Complete | P0 | P3-010, P3-012 |
+| P3-016 | Alignment check — Module 7 (Notifications) | Reviewer | Dev Complete | P0 | P3-015 |
 
 ### Phase 4 — QR System (V2)
 

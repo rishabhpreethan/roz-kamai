@@ -3,6 +3,7 @@ package com.viis.rozkamai
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.viis.rozkamai.infrastructure.notification.NotificationChannels
 import com.viis.rozkamai.infrastructure.worker.WorkScheduler
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
@@ -28,6 +29,7 @@ class RozKamaiApp : Application(), Configuration.Provider {
             Timber.plant(Timber.DebugTree())
         }
         // Production: plant a tree that strips PII (no amounts, UPI handles, names)
+        NotificationChannels.createAll(this)
         workScheduler.schedulePeriodicWorkers()
     }
 }

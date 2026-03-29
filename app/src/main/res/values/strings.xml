@@ -22,6 +22,29 @@
     <string name="permission_sms_denied">SMS permission ke bina app kaam nahi kar payega</string>
     <string name="permission_settings_button">Settings kholein</string>
 
+    <!-- Notification channels (P3-002) -->
+    <string name="notif_channel_eod_name">Aaj ki kamai</string>
+    <string name="notif_channel_eod_desc">Roz shaam ko aaj ka hisaab milega</string>
+    <string name="notif_channel_midday_name">Income alert</string>
+    <string name="notif_channel_midday_desc">Jab kamai expected se kam ho</string>
+    <string name="notif_channel_inactivity_name">Koi payment nahi</string>
+    <string name="notif_channel_inactivity_desc">Jab 2 ghante se koi payment nahi aaye</string>
+
+    <!-- EOD summary notification (P3-003) -->
+    <string name="notif_eod_title">Aaj ka hisaab</string>
+    <string name="notif_eod_body_plain">Aaj %1$s aaya — %2$d payment</string>
+    <string name="notif_eod_body_more">Aaj %1$s aaya — kal se %2$s zyada!</string>
+    <string name="notif_eod_body_less">Aaj %1$s aaya — kal se %2$s kam</string>
+    <string name="notif_eod_body_same">Aaj %1$s aaya — kal jitna hi</string>
+
+    <!-- Mid-day alert notification (P3-004) -->
+    <string name="notif_midday_title">Income check</string>
+    <string name="notif_midday_body">Abhi sirf %1$s aaya — expected %2$s se kam hai. Dhyan do!</string>
+
+    <!-- Inactivity alert notification (P3-005) -->
+    <string name="notif_inactivity_title">Payment nahi aaya</string>
+    <string name="notif_inactivity_body">%1$d ghante se koi payment nahi — sab theek hai?</string>
+
     <!-- Dashboard -->
     <string name="dashboard_no_transactions">Jaise hi UPI/bank payment aayega, yahan dikhega</string>
     <string name="dashboard_income_today">Aaj ₹%1$s aaya</string>

@@ -7,6 +7,7 @@ import androidx.work.WorkerParameters
 import com.viis.rozkamai.data.local.dao.TransactionDao
 import com.viis.rozkamai.data.local.entity.EventEntity
 import com.viis.rozkamai.data.repository.EventRepository
+import com.viis.rozkamai.infrastructure.notification.NotificationEngine
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import timber.log.Timber
@@ -32,6 +33,7 @@ class IdleDetectionWorker @AssistedInject constructor(
     @Assisted params: WorkerParameters,
     private val transactionDao: TransactionDao,
     private val eventRepository: EventRepository,
+    private val notificationEngine: NotificationEngine,
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
@@ -63,6 +65,7 @@ class IdleDetectionWorker @AssistedInject constructor(
 
         if (gapMinutes >= IDLE_THRESHOLD_MINUTES) {
             appendIdleDetectedEvent(gapMinutes, lastTxnTime ?: 0L, now)
+            notificationEngine.sendInactivityAlert(gapMinutes)
             Timber.d("IdleDetectionWorker: gap=${gapMinutes}min >= threshold=${IDLE_THRESHOLD_MINUTES}min")
         }
 
