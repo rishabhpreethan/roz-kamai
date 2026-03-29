@@ -33,6 +33,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.viis.rozkamai.R
 import com.viis.rozkamai.domain.usecase.WeeklyTrend
+import java.text.NumberFormat
+import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -41,7 +43,12 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    HomeScreenContent(uiState = uiState)
+}
 
+/** State-driven entry point — exposed internal for Compose UI tests (P2-029). */
+@Composable
+internal fun HomeScreenContent(uiState: DashboardUiState) {
     Scaffold { padding ->
         when (val state = uiState) {
             DashboardUiState.Loading -> LoadingContent(Modifier.padding(padding))
@@ -533,9 +540,19 @@ private fun SmallInfoCard(
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-private fun formatAmount(amount: Double): String = "₹${"%,.0f".format(amount)}"
+private val indianLocale = Locale("en", "IN")
 
-private fun formatAmountPlain(amount: Double): String = "%,.0f".format(amount)
+private fun formatAmount(amount: Double): String {
+    val fmt = NumberFormat.getCurrencyInstance(indianLocale)
+    fmt.maximumFractionDigits = 0
+    return fmt.format(amount)
+}
+
+private fun formatAmountPlain(amount: Double): String {
+    val fmt = NumberFormat.getNumberInstance(indianLocale)
+    fmt.maximumFractionDigits = 0
+    return fmt.format(amount)
+}
 
 private fun formatHour(hour: Int): String = when {
     hour == 0 -> "12 raat"
