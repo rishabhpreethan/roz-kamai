@@ -2,7 +2,7 @@
 
 **Overall Status**: 🟡 In Progress
 **Current Phase**: Phase 0 — Project Setup & Architecture
-**Last Updated**: 2026-03-28
+**Last Updated**: 2026-03-29
 
 ---
 
@@ -111,14 +111,14 @@
 | P2-026 | Unit tests — Aggregation engine | QA | Dev Complete | P0 | P2-001 |
 | P2-027 | Unit tests — All 14 insight calculations | QA | Dev Complete | P0 | P2-002 to P2-019 |
 | P2-028 | Unit tests — Customer clustering | QA | Dev Complete | P1 | P2-010 |
-| P2-029 | UI tests — Dashboard layout and content | QA | Not Started | P1 | P2-020 |
+| P2-029 | UI tests — Dashboard layout and content | QA | Dev Complete | P1 | P2-020 |
 | P2-030 | Integration test — Event → Aggregation → Projection → UI | QA | Dev Complete | P0 | P2-020 |
 | P2-031 | Edge case testing — 0 transactions, 1 transaction, first day | QA | Dev Complete | P0 | P2-027 |
 | P2-032 | Low-end device testing — Dashboard performance | QA | Not Started | P1 | P2-020 |
-| P2-033 | Code review — Aggregation + Insights | Reviewer | Not Started | P0 | P2-026, P2-030 |
-| P2-034 | Code review — Dashboard UI | Reviewer | Not Started | P1 | P2-029 |
-| P2-035 | Alignment check — Modules 4, 5, 6 (Aggregation, Insights, UI) | Reviewer | Not Started | P0 | P2-033, P2-034 |
-| P2-036 | Event model review — automation triggers, projections | Reviewer | Not Started | P0 | P2-001 |
+| P2-033 | Code review — Aggregation + Insights | Reviewer | Dev Complete | P0 | P2-026, P2-030 |
+| P2-034 | Code review — Dashboard UI | Reviewer | Dev Complete | P1 | P2-029 |
+| P2-035 | Alignment check — Modules 4, 5, 6 (Aggregation, Insights, UI) | Reviewer | Dev Complete | P0 | P2-033, P2-034 |
+| P2-036 | Event model review — automation triggers, projections | Reviewer | Dev Complete | P0 | P2-001 |
 
 ### Phase 3 — Notifications (V1)
 
